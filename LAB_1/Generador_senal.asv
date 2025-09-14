@@ -11,7 +11,7 @@ function [ valores ,n ] = Generador_senal( f,inicio,muestra,fs,fi )
 %       valores ? vector con los valores de la señal discreta x[n].
 %       n ? vector de índices de muestra desde inicio hasta muestra.
 
-n=(inicio:(muestra));
+n=(inicio:(muestra)); %vector 
 valores=sin(2*pi*f*(n/fs)+fi);
 
 end
