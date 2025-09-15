@@ -1,13 +1,13 @@
 function [ periodo,NF ] = esPeriodica( x )
 %Analiza una secuencia discreta finita y determina si presenta periodicidad.
 %   Parámetros de entrada
-%        x ? vector que representa la señal discreta a analizar.
+%        x : vector que representa la señal discreta a analizar.
 %   Parámetros de salida
-%       periodo ? valor entero que indica el período fundamental N0 de la 
+%       periodo : valor entero que indica el período fundamental N0 de la 
 %                 señal.
 %                 Si es 0, significa que la señal no es periódica dentro 
 %                 del rango analizado.
-%       NF ? vector que contiene un segmento de la señal correspondiente a
+%       NF : vector que contiene un segmento de la señal correspondiente a
 %            un período completo.
 %            El primer valor corresponde al inicio de la señal (n=0).
 

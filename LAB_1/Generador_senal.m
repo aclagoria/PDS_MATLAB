@@ -2,14 +2,14 @@ function [ valores ,n ] = Generador_senal( f,inicio,muestra,fs,fi )
 %Genera una señal senoidal discreta a partir de una sinusoide de tiempo 
 %continuo muestreada.
 %   Parámetros de entrada
-%       f ? frecuencia de la señal (Hz).
-%       inicio ? valor inicial del índice n.
-%       muestra ? valor final del índice n.
-%       fs ? frecuencia de muestreo (Hz).
-%       fi ? fase inicial de la señal (rad).
+%       f : frecuencia de la señal (Hz).
+%       inicio : valor inicial del índice n.
+%       muestra : valor final del índice n.
+%       fs : frecuencia de muestreo (Hz).
+%       fi : fase inicial de la señal (rad).
 %    Parámetros de salida
-%       valores ? vector con los valores de la señal discreta x[n].
-%       n ? vector de índices de muestra desde inicio hasta muestra.
+%       valores : vector con los valores de la señal discreta x[n].
+%       n : vector de índices de muestra desde inicio hasta muestra.
 
 n=(inicio:(muestra));
 valores=sin(2*pi*f*(n/fs)+fi);
