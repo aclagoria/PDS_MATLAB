@@ -1,45 +1,43 @@
 clear all
 close all
 
-info= audioinfo('fati.wav');
-info2=audioinfo('caro.wav');
+% info= audioinfo('fati.wav');
+% info2=audioinfo('caro.wav');
 %% Actividad 1)
 
-[x1, Fs1]=audioread('fati.wav');
+[x1, Fs1]=audioread('fati.wav'); % fati.wav audio generado en simulink
+                                 % con Fs=32000 y de 24 bits
 
 N=length(x1);
-Y=fft(x1)/N;
+X1=fft(x1)/N;
 f1=(0:N-1)*(Fs1/N);
-mag1=abs(Y);
+mag1=abs(X1);
 
-% subplot(2,1,1);
+
+subplot(2,1,1);
 stem(f1,mag1);
 xlabel('frecuencia Hz');
 ylabel('Magnitud');
 title('Espectro del audio Fátima');
 grid on;
 
-% subplot(2,1,2);
-% stem(f1,mag1);
-% xlabel('frecuencia Hz');
-% ylabel('Magnitud');
-% title('Espectro del audio Fátima');
-% grid on;
 
-% [x2, Fs2]=audioread('caro.wav');
-% 
-% N=length(x2);
-% Y=fft(x2)/N;
-% f2=(0:N-1)*(Fs2/N);
-% mag2=abs(Y);
-% figure
-% stem(f2,mag2);
-% xlabel('frecuencia Hz');
-% ylabel('Magnitud');
-% title('Espectro del audio Carolina');
-% grid on;
+[x2, Fs2]=audioread('caro.wav'); % caro.wav audio generado en simulink
+                                 % con Fs=32000 y de 24 bits
 
-%% Ac 2)
+N=length(x2);
+X2=fft(x2)/N;
+f2=(0:N-1)*(Fs2/N);
+mag2=abs(X2);
+
+subplot(2,1,2);
+stem(f2,mag2);
+xlabel('frecuencia Hz');
+ylabel('Magnitud');
+title('Espectro del audio Carolina');
+grid on;
+
+%% Actividad 2)
 load('filcoef.mat');
 
 %y1_fcionfilter=filter(A,B,x1); % no usar hacer paso por paso
@@ -65,10 +63,90 @@ f1=(0:N-1)*(1/N);
 mag1=abs(Y1);
 
 figure
+subplot(2,1,1);
 stem(f1,mag1);
 xlabel('frecuencia Hz');
 ylabel('Magnitud');
 title('Espectro del audio filtrada Fátima');
 grid on;
 
-%% 3
+y2=ecuacion_de_diferencias(x2,A,B);
+
+Y2= fft(y2);
+N=length(Y2);
+
+f2=(0:N-1)*(1/N);
+mag2=abs(Y2);
+
+subplot(2,1,2);
+stem(f2,mag2);
+xlabel('frecuencia Hz');
+ylabel('Magnitud');
+title('Espectro del audio filtrada Carolina');
+grid on;
+
+%% Actividad 3)
+
+% Cambiar la frecuencia de muestreo de 32 kHz a 8 KHz
+Fs_nuevo= 8000;
+fati_Fs_8k = resample(y1, Fs_nuevo, Fs1);% remuestreo a 8kHZ
+
+% Cambiar el numero de bits de 24 a 12
+%   Obtener valore mínimo y máximp para escalar la señal
+    min_val = min(fati_Fs_8k); 
+    max_val = max(fati_Fs_8k);
+    rango=max_val-min_val;
+%   Desplazar la señal para que arranque en 0
+    audio24bit_desplazado= fati_Fs_8k- min_val;
+%   Escalado de la señal 
+    audio24bit_escalado= audio24bit_desplazado * ((2^24-1)/(rango));
+%   Cuantizar a 12 bits 
+    audio12bit=round(audio24bit_escalado/(2^12)); %redondeo
+%   Esacalar al rango original
+    audio12bit_esc=(audio12bit*rango/(2^12-1))+min_val;
+
+% Guardar en formato WAV, el formato WAV tiene bits de salida por muestra
+% de 8, 16, 24, 32 y 64. Entonces guardamos en 16 bit, pero por lo
+% realizado anteriormente se tiene una resolución efectiva de 12
+audiowrite('fati_Fs8k_filtrada_12bit.wav', audio12bit_esc, Fs_nuevo, 'BitsPerSample', 16);
+
+
+caro_Fs_8k = resample(x2, Fs_nuevo, Fs2);% remuestreo a 8kHZ
+
+% Cambiar el numero de bits de 24 a 12
+%   Obtener valore mínimo y máximp para escalar la señal
+    min_val = min(caro_Fs_8k); 
+    max_val = max(caro_Fs_8k);
+    rango=max_val-min_val;
+%   Desplazar la señal para que arranque en 0
+    audio24bit_desplazado= caro_Fs_8k - min_val;
+%   Escalado de la señal 
+    audio24bit_escalado= audio24bit_desplazado * ((2^24-1)/(rango));
+%   Cuantizar a 12 bits 
+    audio12bit=round(audio24bit_escalado/(2^12)); %redondeo
+%   Esacalar al rango original
+    audio12bit_esc=(audio12bit*rango/(2^12-1))+min_val;
+
+% Guardar en formato WAV, el formato WAV tiene bits de salida por muestra
+% de 8, 16, 24, 32 y 64. Entonces guardamos en 16 bit, pero por lo
+% realizado anteriormente se tiene una resolución efectiva de 12
+audiowrite('caro_Fs8k_12bit.wav', audio12bit_esc, Fs_nuevo, 'BitsPerSample', 16);
+
+
+
+%% Actividad 4)
+[s1, Fs1]=audioread('senal_160.wav'); % leo audio generedo en Lab1
+                                
+
+N=length(s1);
+S1=fft(s1)/N;
+f1=(0:N-1)*(Fs1/N);
+magS1=abs(S1);
+
+figure;
+subplot(2,1,1);
+stem(f1,magS1);
+xlabel('frecuencia Hz');
+ylabel('Magnitud');
+title('Espectro del audio senal_160');
+grid on;
