@@ -6,7 +6,7 @@
 function y = aplicar_filtro(x, A, B)
     % x: señal de entrada
     % A: coeficientes del numerador (A0, A1, ..., AN)
-    % B: coeficientes del denominador (B1, B2, ..., BN)
+    % B: coeficientes del denominador (B0,B1, B2, ..., BN)
     
     N = length(A) - 1;         % Orden del filtro
     L = length(x);             % Longitud de la señal

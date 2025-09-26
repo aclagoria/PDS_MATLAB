@@ -3,7 +3,7 @@ close all
 
 info= audioinfo('fati.wav');
 info2=audioinfo('caro.wav');
-%% 1)
+%% Actividad 1)
 
 [x1, Fs1]=audioread('fati.wav');
 
@@ -39,7 +39,7 @@ grid on;
 % title('Espectro del audio Carolina');
 % grid on;
 
-%% 2)
+%% Ac 2)
 load('filcoef.mat');
 
 %y1_fcionfilter=filter(A,B,x1); % no usar hacer paso por paso
@@ -70,3 +70,5 @@ xlabel('frecuencia Hz');
 ylabel('Magnitud');
 title('Espectro del audio filtrada Fátima');
 grid on;
+
+%% 3

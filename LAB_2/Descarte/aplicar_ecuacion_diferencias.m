@@ -15,7 +15,7 @@ function y = aplicar_ecuacion_diferencias(x, A, B)
     for n = 1:L
         % parte de la entrada (x)
         accX = 0;
-        for k = 0:nb
+        for k = 1:nb
             if (n-k+1) > 0
                 accX = accX + B(k) * x(n-k+1);
             end
