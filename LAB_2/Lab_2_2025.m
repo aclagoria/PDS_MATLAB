@@ -14,11 +14,11 @@ f1=(0:N-1)*(Fs1/N);
 mag1=abs(X1);
 
 
-subplot(2,1,1);
+subplot(2,2,1);
 stem(f1,mag1);
 xlabel('frecuencia Hz');
 ylabel('Magnitud');
-title('Espectro del audio Fátima');
+title('Espectro en Frecuencia – Audio Fátima (original)');
 grid on;
 
 
@@ -30,11 +30,11 @@ X2=fft(x2)/N;
 f2=(0:N-1)*(Fs2/N);
 mag2=abs(X2);
 
-subplot(2,1,2);
+subplot(2,2,2);
 stem(f2,mag2);
 xlabel('frecuencia Hz');
 ylabel('Magnitud');
-title('Espectro del audio Carolina');
+title('Espectro en Frecuencia – Audio Carolina (original)');
 grid on;
 
 %% Actividad 2)
@@ -62,12 +62,12 @@ N=length(Y1);
 f1=(0:N-1)*(1/N);
 mag1=abs(Y1);
 
-figure
-subplot(2,1,1);
+%figure
+subplot(2,2,3);
 stem(f1,mag1);
 xlabel('frecuencia Hz');
 ylabel('Magnitud');
-title('Espectro del audio filtrada Fátima');
+title('Espectro en Frecuencia – Audio Fátima (filtrado)');
 grid on;
 
 y2=ecuacion_de_diferencias(x2,A,B);
@@ -78,12 +78,14 @@ N=length(Y2);
 f2=(0:N-1)*(1/N);
 mag2=abs(Y2);
 
-subplot(2,1,2);
+subplot(2,2,4);
 stem(f2,mag2);
 xlabel('frecuencia Hz');
 ylabel('Magnitud');
-title('Espectro del audio filtrada Carolina');
+title('Espectro en Frecuencia – Audio Carolina (filtrado)');
 grid on;
+
+
 
 %% Actividad 3)
 
