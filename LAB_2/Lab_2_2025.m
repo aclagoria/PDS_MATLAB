@@ -87,50 +87,19 @@ grid on;
 
 %% Actividad 3)
 
-% Cambiar la frecuencia de muestreo de 32 kHz a 8 KHz
-Fs_nuevo= 8000;
-fati_Fs_8k = resample(x1, Fs_nuevo, Fs1);% remuestreo a 8kHZ
-
-% Cambiar el numero de bits de 24 a 12
-%   Obtener valore mínimo y máximp para escalar la señal
-    min_val = min(fati_Fs_8k); 
-    max_val = max(fati_Fs_8k);
-    rango=max_val-min_val;
-%   Desplazar la señal para que arranque en 0
-    audio24bit_desplazado= fati_Fs_8k- min_val;
-%   Escalado de la señal 
-    audio24bit_escalado= audio24bit_desplazado * ((2^24-1)/(rango));
-%   Cuantizar a 12 bits 
-    audio12bit=round(audio24bit_escalado/(2^12)); %redondeo
-%   Esacalar al rango original
-    audio12bit_esc=(audio12bit*rango/(2^12-1))+min_val;
+[fati_12bit, Fs_nuevo]= generar_registro(y1,Fs1); % utilizo la señal filtrada 
 
 % Guardar en formato WAV, el formato WAV tiene bits de salida por muestra
 % de 8, 16, 24, 32 y 64. Entonces guardamos en 16 bit, pero por lo
 % realizado anteriormente se tiene una resolución efectiva de 12
-audiowrite('fati_Fs8k_12bit.wav', audio12bit_esc, Fs_nuevo, 'BitsPerSample', 16);
+audiowrite('fati_Fs8k_12bit.wav', fati_12bit, Fs_nuevo, 'BitsPerSample', 16);
 
 
-caro_Fs_8k = resample(x2, Fs_nuevo, Fs2);% remuestreo a 8kHZ
-
-% Cambiar el numero de bits de 24 a 12
-%   Obtener valore mínimo y máximp para escalar la señal
-    min_val = min(caro_Fs_8k); 
-    max_val = max(caro_Fs_8k);
-    rango=max_val-min_val;
-%   Desplazar la señal para que arranque en 0
-    audio24bit_desplazado= caro_Fs_8k - min_val;
-%   Escalado de la señal 
-    audio24bit_escalado= audio24bit_desplazado * ((2^24-1)/(rango));
-%   Cuantizar a 12 bits 
-    audio12bit=round(audio24bit_escalado/(2^12)); %redondeo
-%   Esacalar al rango original
-    audio12bit_esc=(audio12bit*rango/(2^12-1))+min_val;
-
+[caro_12bit, Fs_nuevo]= generar_registro(y2,Fs2);
 % Guardar en formato WAV, el formato WAV tiene bits de salida por muestra
 % de 8, 16, 24, 32 y 64. Entonces guardamos en 16 bit, pero por lo
 % realizado anteriormente se tiene una resolución efectiva de 12
-audiowrite('caro_Fs8k_12bit.wav', audio12bit_esc, Fs_nuevo, 'BitsPerSample', 16);
+audiowrite('caro_Fs8k_12bit.wav', caro_12bit, Fs_nuevo, 'BitsPerSample', 16);
 
 
 
