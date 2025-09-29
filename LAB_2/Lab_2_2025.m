@@ -14,12 +14,12 @@ f1=(0:N-1)*(Fs1/N);
 mag1=abs(X1);
 
 
-subplot(2,2,1);
-stem(f1,mag1);
-xlabel('frecuencia Hz');
-ylabel('Magnitud');
-title('Espectro en Frecuencia – Audio Fátima (original)');
-grid on;
+% subplot(2,1,1);
+% stem(f1,mag1);
+% xlabel('frecuencia Hz');
+% ylabel('Magnitud');
+% title('Espectro en Frecuencia – Audio Fátima (original)');
+% grid on;
 
 
 [x2, Fs2]=audioread('caro.wav'); % caro.wav audio generado en simulink
@@ -30,7 +30,7 @@ X2=fft(x2)/N;
 f2=(0:N-1)*(Fs2/N);
 mag2=abs(X2);
 
-subplot(2,2,2);
+subplot(2,1,1);
 stem(f2,mag2);
 xlabel('frecuencia Hz');
 ylabel('Magnitud');
@@ -59,26 +59,27 @@ y1=ecuacion_de_diferencias(x1,A,B);
 Y1= fft(y1);
 N=length(Y1);
 
-f1=(0:N-1)*(1/N);
+f1=(0:N-1)*(Fs1/N);
 mag1=abs(Y1);
 
-%figure
-subplot(2,2,3);
-stem(f1,mag1);
-xlabel('frecuencia Hz');
-ylabel('Magnitud');
-title('Espectro en Frecuencia – Audio Fátima (filtrado)');
-grid on;
+% subplot(2,1,2);
+% %figure
+% %subplot(2,1,1);
+% stem(f1,mag1);
+% xlabel('frecuencia Hz');
+% ylabel('Magnitud');
+% title('Espectro en Frecuencia – Audio Fátima (filtrado)');
+% grid on;
 
 y2=ecuacion_de_diferencias(x2,A,B);
 
 Y2= fft(y2);
 N=length(Y2);
 
-f2=(0:N-1)*(1/N);
+f2=(0:N-1)*(Fs2/N);
 mag2=abs(Y2);
 
-subplot(2,2,4);
+subplot(2,1,2);
 stem(f2,mag2);
 xlabel('frecuencia Hz');
 ylabel('Magnitud');
