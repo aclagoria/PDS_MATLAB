@@ -1,8 +1,7 @@
 clear all
 close all
 
-% info= audioinfo('fati.wav');
-% info2=audioinfo('caro.wav');
+
 %% Actividad 1)
 
 [x1, Fs1]=audioread('fati.wav'); % fati.wav audio generado en simulink
@@ -30,12 +29,12 @@ X2=fft(x2)/N;
 f2=(0:N-1)*(Fs2/N);
 mag2=abs(X2);
 
-subplot(2,1,1);
-stem(f2,mag2);
-xlabel('frecuencia Hz');
-ylabel('Magnitud');
-title('Espectro en Frecuencia – Audio Carolina (original)');
-grid on;
+% subplot(2,1,1);
+% stem(f2,mag2);
+% xlabel('frecuencia Hz');
+% ylabel('Magnitud');
+% title('Espectro en Frecuencia – Audio Carolina (original)');
+% grid on;
 
 %% Actividad 2)
 load('filcoef.mat');
@@ -79,12 +78,12 @@ N=length(Y2);
 f2=(0:N-1)*(Fs2/N);
 mag2=abs(Y2);
 
-subplot(2,1,2);
-stem(f2,mag2);
-xlabel('frecuencia Hz');
-ylabel('Magnitud');
-title('Espectro en Frecuencia – Audio Carolina (filtrado)');
-grid on;
+% subplot(2,1,2);
+% stem(f2,mag2);
+% xlabel('frecuencia Hz');
+% ylabel('Magnitud');
+% title('Espectro en Frecuencia – Audio Carolina (filtrado)');
+% grid on;
 
 
 
@@ -95,30 +94,48 @@ grid on;
 % Guardar en formato WAV, el formato WAV tiene bits de salida por muestra
 % de 8, 16, 24, 32 y 64. Entonces guardamos en 16 bit, pero por lo
 % realizado anteriormente se tiene una resolución efectiva de 12
-audiowrite('fati_Fs8k_12bit.wav', fati_12bit, Fs_nuevo, 'BitsPerSample', 16);
+
+%audiowrite('fati_Fs8k_12bit.wav', fati_12bit, Fs_nuevo, 'BitsPerSample', 16);
 
 
 [caro_12bit, Fs_nuevo]= generar_registro(y2,Fs2);
 % Guardar en formato WAV, el formato WAV tiene bits de salida por muestra
 % de 8, 16, 24, 32 y 64. Entonces guardamos en 16 bit, pero por lo
 % realizado anteriormente se tiene una resolución efectiva de 12
-audiowrite('caro_Fs8k_12bit.wav', caro_12bit, Fs_nuevo, 'BitsPerSample', 16);
+
+%audiowrite('caro_Fs8k_12bit.wav', caro_12bit, Fs_nuevo, 'BitsPerSample', 16);
 
 
 
 %% Actividad 4)
-[s1, Fs1]=audioread('senal_160.wav'); % leo audio generedo en Lab1
-                                
 
-N=length(s1);
-S1=fft(s1)/N;
-f1=(0:N-1)*(Fs1/N);
-magS1=abs(S1);
+audios = {'senal_160.wav','senal_325.wav','senal_110.wav','senal_323.wav'};
 
-figure;
-subplot(2,1,1);
-stem(f1,magS1);
-xlabel('frecuencia Hz');
-ylabel('Magnitud');
-title('Espectro del audio senal_160');
-grid on;
+for k=1:length(audios)
+    
+    [x, Fs]=audioread(audios{k}); % leo cada audio generedo en Lab1
+
+    [N, nf]= esPeriodica(x); % nf=segmento de la señal correspondiente a un periodo
+
+    if isempty(N) || N == 0 % verifico que la señal sea periódica
+        fprintf('La señal %s no es periódica. No se reconstruye.\n', audios{k});
+        continue; % pasar al siguiente audio
+    end
+    x_stf=encontrar_STF(N,nf);
+    t=(0:N-1)/Fs; % vector tiempo
+
+    figure;
+    subplot(2,1,1);
+    stem(t,nf);
+    xlabel('tiempo [s]');
+    ylabel('Amplitud');
+    title(['Segmento periódico de la señal: ', audios{k}]);
+    grid on;               
+
+    subplot(2,1,2);
+    stem(t,x_stf);
+    xlabel('tiempo [s]');
+    ylabel('Amplitud');
+    title(['Reconstrucción con STFD: ',audios{k}]);
+    grid on;               
+end
