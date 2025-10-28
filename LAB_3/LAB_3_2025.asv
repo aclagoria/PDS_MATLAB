@@ -1,0 +1,146 @@
+clear all
+close all
+
+% Actividad 2)
+
+% frec de muestreo= 160 Hz
+% cantidad de muestras =16
+
+T = 0.1;
+fs1 = 160;
+N1 = T * fs1;
+n1 = 0:N1-1;
+t1 = n1/fs1;
+
+x2= 5 + sin(60*pi*t1) + cos(80*pi*t1) + sin(120*pi*t1-pi/4);
+
+X2= fft(x2)/N1;
+f2_axis=(0:N1)*(fs1/N1);
+
+figure;
+stem(f2_axis(1:N1), abs(X2(1:N1)));
+title('FFT de x2[n] - 2 A');
+xlabel('Frecuencia Hz');
+ylabel('|X(f)|');
+grid on;
+
+% frec de muestreo= 325 Hz
+% cantidad de muestras =65
+
+T = 0.1;
+fs2 = 325;
+N2 = T * fs2;
+n2 = 0:N2-1;
+t2 = n2/fs2;
+
+x3= 5 + sin(60*pi*t2) + cos(80*pi*t2) + sin(120*pi*t2-pi/4);
+
+X3= fft(x3)/N2;
+f3_axis=(0:N2)*(fs2/N2);
+
+figure;
+stem(f3_axis(1:N2), abs(X3(1:N2)));
+title('FFT de x3[n] - 2 B');
+xlabel('Frecuencia Hz');
+ylabel('|X(f)|');
+grid on;
+
+% frec de muestreo= 160 Hz
+% cantidad de muestras =2*16
+
+fs1 = 160;
+N1 =2* T * fs1;
+n1 = 0:N1-1;
+t1 = n1/fs1;
+
+x2= 5 + sin(60*pi*t1) + cos(80*pi*t1) + sin(120*pi*t1-pi/4);
+
+X2= fft(x2)/N1;
+f2_axis=(0:N1)*(fs1/N1);
+
+figure;
+stem(f2_axis(1:N1), abs(X2(1:N1)));
+title('FFT de x2[n] - 2 C');
+xlabel('Frecuencia Hz');
+ylabel('|X(f)|');
+grid on;
+
+% frec de muestreo= 160 Hz
+% cantidad de muestras =16*8
+
+fs1 = 160;
+N1 = T * fs1;
+Namp1 = 8*N1;
+n1 = 0:N1-1;
+t1 = n1/fs1;
+
+x2= 5 + sin(60*pi*t1) + cos(80*pi*t1) + sin(120*pi*t1-pi/4);
+
+x2amp1 = [x2, zeros(1, Namp1-N1)];
+
+X2amp1= fft(x2amp1)/N1;
+f2=(0:Namp1-1)*(fs1/Namp1);
+
+figure;
+stem(f2(1:Namp1), abs(X2amp1(1:Namp1)));
+title('FFT de x2[n] - 2 D');
+xlabel('Frecuencia Hz');
+ylabel('|X(f)|');
+grid on;
+
+
+% Actividad 3)
+fs = 160;        
+T = 0.1;         
+N = T*fs;
+N7 = 2*N;
+n = 0:N-1;
+t = n/fs;
+
+x2 = 5 + sin(60*pi*t) + cos(80*pi*t) + sin(120*pi*t - pi/4);
+
+x7 = zeros(1, N7);    
+x7(1:2:end) = x2;      
+n7=0:N7-1;
+X7 = fft(x7)/(N7);     
+f7 = (0:N7-1)*(fs/(N7));  % eje de frecuencia
+
+figure;
+stem(f7, abs(X7));
+title('FFT de x7[n] - 3');
+xlabel('Frecuencia [Hz]');
+ylabel('|X7(f)|');
+grid on;
+
+% figure;
+% stem(n, x2);
+% title('');
+% xlabel('muestra');
+% ylabel('amplitud');
+% grid on;
+% 
+% figure;
+% stem(n7, x7);
+% title('');
+% xlabel('muestra');
+% ylabel('amplitud');
+% grid on;
+
+% Actividad 4)
+load('dolarblue');
+
+N = length(valor);
+n = 1:N;
+
+yg = medfilt1(valor,7);
+
+figure1 = figure('Color',[1 1 1]);  % fondo blanco
+
+axes1 = axes('Parent', figure1, ...
+    'XColor', [0 1 0], ...   % eje X verde
+    'YColor', [0 1 0], ...   % eje Y verde
+    'ZColor', [0 1 0]);      % eje Z verde
+
+plot(t,x,t,y)
+legend('Original','Filtered')
+legend('boxoff')
