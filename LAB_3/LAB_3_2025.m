@@ -1,7 +1,7 @@
 clear all
 close all
 
-% Actividad 2)
+%% Actividad 2)
 
 % frec de muestreo= 160 Hz
 % cantidad de muestras =16
@@ -89,7 +89,7 @@ ylabel('|X(f)|');
 grid on;
 
 
-% Actividad 3)
+%% Actividad 3)
 fs = 160;        
 T = 0.1;         
 N = T*fs;
@@ -126,14 +126,22 @@ grid on;
 % ylabel('amplitud');
 % grid on;
 
-% Actividad 4)
-load('dolarblue');
+%% Actividad 4)
+load('dolarblue'); % carga valor que es un vector columna que es la entrada 
+                   % del sistema
 
 N = length(valor);
 n = 1:N;
 
-yg = medfilt1(valor,7);
+% a Ventana de Promedio Móvil
+M= 7; % duración de muestras
+h_prom_movil= ones(1,M)/M; % respuesta al impulso
+yg_prom_movil = conv(valor, h_prom_movil, 'same'); % convolución discreta 
 
+% b Ventana Mediana movil
+yg_med_movil= medfilt1(valor,7);
+
+% Gráficas puntos a y b
 figure1 = figure('Color',[1 1 1]);  % fondo blanco
 
 axes1 = axes('Parent', figure1, ...
@@ -146,5 +154,13 @@ xlim(axes1, [0 205]);
 ylim(axes1, [1000 1400]);
 box(axes1,'on');
 hold(axes1,'all');
-plot(n,valor);
-plot(n, yg, 'LineWidth',2);
+plot(n,valor,'DisplayName','Entrada');
+plot(n, yg_prom_movil, 'LineWidth',1.5,'DisplayName','Ventana de Promedio móvil (M=7)');
+plot(n, yg_med_movil, 'LineWidth',2,'DisplayName','Ventana de Mediana móvil (M=7)');
+xlabel('Muestra n');
+ylabel('Valor (ARS)');
+title('Dólar Blue: entrada original y filtros (promedio y mediana, ventana 7)');
+legend('Location','best'); 
+grid on;
+
+% c
