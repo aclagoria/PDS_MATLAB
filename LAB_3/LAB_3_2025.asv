@@ -141,6 +141,7 @@ yg_prom_movil = conv(valor, h_prom_movil, 'same'); % convolución discreta
 % b Ventana Mediana movil
 yg_med_movil= medfilt1(valor,7);
 
+% Gráficas puntos a y b
 figure1 = figure('Color',[1 1 1]);  % fondo blanco
 
 axes1 = axes('Parent', figure1, ...
@@ -158,6 +159,51 @@ plot(n, yg_prom_movil, 'LineWidth',1.5,'DisplayName','Ventana de Promedio móvil 
 plot(n, yg_med_movil, 'LineWidth',2,'DisplayName','Ventana de Mediana móvil (M=7)');
 xlabel('Muestra n');
 ylabel('Valor (ARS)');
-title('Dólar Blue: original y filtros (promedio y mediana, ventana 7)');
+title('Dólar Blue: entrada original y filtros (promedio y mediana, ventana 7)');
 legend('Location','best'); 
+grid on;
+
+% c Respuesta en frecuencia filtro de promedio movil
+
+Nfft = 2^nextpow2(N*4);%Nfft = 512;              % número de puntos FFT para calcular la FFT de la 
+                         % ventana (con relleno para más resolución)
+                         
+H = fft(h_prom_movil, Nfft);        % transformada
+f = (0:Nfft-1)/Nfft;     % eje de frecuencia normalizado (0 a 1)
+w = 2*pi*f;  % eje en radianes por muestra (0 a 2?)
+w_mitad = w(1:Nfft/2);
+H_mitad = H(1:Nfft/2);
+
+% Gráfica
+figure('Color',[1 1 1]);
+plot(w_mitad, abs(H_mitad), 'LineWidth',1.5);
+xlabel('Frecuencia normalizada  rad/muestra)');
+ylabel('|H(e^{j\omega})|');
+grid on;
+
+
+% d 
+
+Valor= fft(valor, Nfft)/Nfft;
+YG_prom_movil= fft( yg_prom_movil, Nfft)/Nfft; 
+YG_mrd_movil=fft(yg_med_movil, Nfft)/Nfft;
+
+figure;
+stem(f,abs(Valor));
+xlabel('frecuencia Hz');
+ylabel('Magnitud');
+title('Espectro en Frecuencia – Original');
+grid on;
+
+figure;
+stem(f,abs());
+xlabel('frecuencia Hz');
+ylabel('Magnitud');
+title('Espectro en Frecuencia – Original');
+grid on;
+figure;
+stem(f,mag1);
+xlabel('frecuencia Hz');
+ylabel('Magnitud');
+title('Espectro en Frecuencia – Original');
 grid on;

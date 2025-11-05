@@ -163,4 +163,73 @@ title('Dólar Blue: entrada original y filtros (promedio y mediana, ventana 7)');
 legend('Location','best'); 
 grid on;
 
-% c
+% c Respuesta en frecuencia filtro de promedio movil
+
+Nfft = 2^nextpow2(N*4);%Nfft = 512;              % número de puntos FFT para calcular la FFT de la 
+                         % ventana (con relleno para más resolución)
+                         
+H = fft(h_prom_movil, Nfft);        % transformada
+f = (0:Nfft-1)/Nfft;     % eje de frecuencia normalizado (0 a 1)
+w = 2*pi*f;  % eje en radianes por muestra (0 a 2?)
+w_mitad = w(1:Nfft/2);
+H_mitad = H(1:Nfft/2);
+
+% Gráfica
+figure('Color',[1 1 1]);
+plot(w_mitad, abs(H_mitad), 'LineWidth',1.5);
+xlabel('Frecuencia normalizada  rad/muestra)');
+ylabel('|H(e^{j\omega})|');
+grid on;
+
+
+% d 
+
+Valor= fft(valor, Nfft)/Nfft;
+YG_prom_movil= fft( yg_prom_movil, Nfft)/Nfft; 
+YG_med_movil=fft(yg_med_movil, Nfft)/Nfft;
+
+figure;
+stem(f,abs(Valor));
+xlabel('frecuencia Hz');
+ylabel('Magnitud');
+title('Espectro en Frecuencia – Original');
+grid on;
+
+figure;
+stem(f,abs(YG_prom_movil));
+xlabel('frecuencia Hz');
+ylabel('Magnitud');
+title('Espectro en Frecuencia – con Ventana de Promedio Movil');
+grid on;
+
+figure;
+stem(f,abs(YG_med_movil));
+xlabel('frecuencia Hz');
+ylabel('Magnitud');
+title('Espectro en Frecuencia – con Ventana de Mediana Movil');
+grid on;
+
+
+figure;
+subplot(3,1,1);
+stem(f,abs(Valor));
+xlabel('frecuencia Hz');
+ylabel('Magnitud');
+title('Espectro en Frecuencia – Original');
+grid on;
+
+
+subplot(3,1,2);
+stem(f,abs(YG_prom_movil));
+xlabel('frecuencia Hz');
+ylabel('Magnitud');
+title('Espectro en Frecuencia – con Ventana de Promedio Movil');
+grid on;
+
+
+subplot(3,1,3);
+stem(f,abs(YG_med_movil));
+xlabel('frecuencia Hz');
+ylabel('Magnitud');
+title('Espectro en Frecuencia – con Ventana de Mediana Movil');
+grid on;
