@@ -68,6 +68,8 @@ L = min([length(ch1), length(ch2), length(ch3), length(ch4)]);  % cantidad de
 
 g4bit_ch = cell(1,3);
 grupos_bit = cell(1,12);
+a_k = zeros(1,12);
+b_k = zeros(1,12);
 
 for l = 1:L
     muestras_actuales = [ch1(l), ch2(l), ch3(l), ch4(l)];
@@ -76,4 +78,5 @@ for l = 1:L
         g4bit_ch = [grupo_4bit(bin12)];
         grupos_bit(((ch-1)*3+1):((ch-1)*3+3))= g4bit_ch;
     end
+    [a_k,b_k] = mapeo_16QAM(grupos_bit);
 end
