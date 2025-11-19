@@ -28,10 +28,15 @@ ch4 = randi([0, 4095], L, 1);  % Canal 4: Aleatoria (valores 12 bit)
 
 
 bin12 = cell(L, CH);  % matriz de celdas 10x4
-
+g_bit = cell(L,12);
 for l = 1:L
     muestras_actuales = [ch1(l), ch2(l), ch3(l), ch4(l)];
+    g4bit_ch = cell(1,3);
+    grupos_bit = cell(1,12);
     for ch = 1:CH
         bin12{l, ch} = dec2bin(muestras_actuales(ch), 12);
+        g4bit_ch = [grupo_4bit(bin12{l, ch})];
+        grupos_bit(((ch-1)*3+1):((ch-1)*3+3))= g4bit_ch;
     end
+    g_bit(l,:) = grupos_bit;    
 end
