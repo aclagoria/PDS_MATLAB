@@ -55,10 +55,23 @@ end
 %% Actividad 2
 
 % Generación de audios de 1 segundo
-[x1, Fs1]= partir_audio('fati_Fs8k_12bit.wav',1,1);
+[ch1, Fs1]= partir_audio('fati_Fs8k_12bit.wav',1,1);
 
-[x2, Fs2]= partir_audio('fati_Fs8k_12bit.wav',1,3);
+[ch2, Fs2]= partir_audio('fati_Fs8k_12bit.wav',1,3);
 
-[x3, Fs3]= partir_audio('caro_Fs8k_12bit.wav',1,1);
+[ch3, Fs3]= partir_audio('caro_Fs8k_12bit.wav',1,1);
 
-[x4, Fs4]= partir_audio('caro_Fs8k_12bit.wav',1,3);
+[ch4, Fs4]= partir_audio('caro_Fs8k_12bit.wav',1,3);
+
+L = min([length(ch1), length(ch2), length(ch3), length(ch4)]);  % cantidad de 
+    % muestras de cada canal de voz, es para asegurar igual tamaño despues
+
+g4bit_ch = cell(1,3);
+grupos_bit = cell(1,12);
+
+for l = 1:L
+    muestras_actuales = [ch1(l), ch2(l), ch3(l), ch4(l)];
+    for ch = 1:CH
+        bin12 = convertir_muestra16a12bin(muestras_actuales(ch));
+    end
+end
