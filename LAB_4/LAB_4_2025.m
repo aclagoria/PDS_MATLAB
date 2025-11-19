@@ -52,3 +52,13 @@ for l = 1:L
     fin=l*N;
     s(inicio:fin)= suma;
 end
+%% Actividad 2
+
+% Generación de audios de 1 segundo
+[x1, Fs1]= partir_audio('fati_Fs8k_12bit.wav',1,1);
+
+[x2, Fs2]= partir_audio('fati_Fs8k_12bit.wav',1,3);
+
+[x3, Fs3]= partir_audio('caro_Fs8k_12bit.wav',1,1);
+
+[x4, Fs4]= partir_audio('caro_Fs8k_12bit.wav',1,3);
