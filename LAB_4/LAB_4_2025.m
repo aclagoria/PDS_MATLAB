@@ -32,6 +32,7 @@ g_bit = cell(L,12);
 a_k = zeros(1,12);
 b_k = zeros(1,12);
 s_k = zeros(N,K);
+s= zeros(L*N,1);
 for l = 1:L
     muestras_actuales = [ch1(l), ch2(l), ch3(l), ch4(l)];
     g4bit_ch = cell(1,3);
@@ -46,5 +47,8 @@ for l = 1:L
     for k=1:K
          s_k(:,k)= a_k(k)* cos(2*pi*f_k(k) * t )- 1j* b_k(k)* sin(2*pi*f_k(k)* t) ; 
     end
-     
+    suma=sum(s_k,2);
+    inicio=(l-1)*N+1;
+    fin=l*N;
+    s(inicio:fin)= suma;
 end
