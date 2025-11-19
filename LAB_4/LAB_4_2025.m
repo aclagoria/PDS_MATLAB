@@ -2,7 +2,7 @@ clear all
 close all
 
 
-fs = 153.6e3;         % Frecuencia de muestreo de la señal modulada 156.6 kHz
+fs = 153.6e3;       % Frecuencia de muestreo de la señal modulada 156.6 kHz
 k = (0:11)';          % Índices de los 12 canales 
 f_k = (38.7 + 0.15 * k) * 1e3; % Frecuencias de portadora en Hz 
 delta_f = 0.15e3;     % Separación de frecuencia (150 Hz) entre canales
@@ -12,7 +12,7 @@ N = round(Tsym * fs); % cantidad de muestras de la señal portadora (1024)
 t = (0:N-1) / fs; % Vector de tiempo para un símbolo
 
 CH = 4;               % n° de canales  de 12 bits
-
+K = 12;
 %% Actividad 1
 
 % Costruccion de señales de 12 bit en forma de columna
@@ -31,6 +31,7 @@ bin12 = cell(L, CH);  % matriz de celdas 10x4
 g_bit = cell(L,12);
 a_k = zeros(1,12);
 b_k = zeros(1,12);
+s_k = zeros(N,K);
 for l = 1:L
     muestras_actuales = [ch1(l), ch2(l), ch3(l), ch4(l)];
     g4bit_ch = cell(1,3);
@@ -42,4 +43,8 @@ for l = 1:L
     end
     g_bit(l,:) = grupos_bit;  
     [a_k,b_k] = mapeo_16QAM(grupos_bit);
+    for k=1:K
+         s_k(:,k)= a_k(k)* cos(2*pi*f_k(k) * t )- 1j* b_k(k)* sin(2*pi*f_k(k)* t) ; 
+    end
+     
 end
