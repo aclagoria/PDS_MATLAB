@@ -73,5 +73,7 @@ for l = 1:L
     muestras_actuales = [ch1(l), ch2(l), ch3(l), ch4(l)];
     for ch = 1:CH
         bin12 = convertir_muestra16a12bin(muestras_actuales(ch));
+        g4bit_ch = [grupo_4bit(bin12)];
+        grupos_bit(((ch-1)*3+1):((ch-1)*3+3))= g4bit_ch;
     end
 end
