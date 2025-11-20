@@ -79,4 +79,8 @@ for l = 1:L
         grupos_bit(((ch-1)*3+1):((ch-1)*3+3))= g4bit_ch;
     end
     [a_k,b_k] = mapeo_16QAM(grupos_bit);
+    s_k = zeros(N,K);
+    for k=1:K
+         s_k(:,k)= a_k(k)* cos(2*pi*f_k(k) * t )- 1j* b_k(k)* sin(2*pi*f_k(k)* t) ; 
+    end
 end
