@@ -70,7 +70,7 @@ g4bit_ch = cell(1,3);
 grupos_bit = cell(1,12);
 a_k = zeros(1,12);
 b_k = zeros(1,12);
-
+s= zeros(L*N,1); % Señal modulada
 for l = 1:L
     muestras_actuales = [ch1(l), ch2(l), ch3(l), ch4(l)];
     for ch = 1:CH
@@ -83,4 +83,9 @@ for l = 1:L
     for k=1:K
          s_k(:,k)= a_k(k)* cos(2*pi*f_k(k) * t )- 1j* b_k(k)* sin(2*pi*f_k(k)* t) ; 
     end
+    suma=sum(s_k,2); % suma los elementos a lo largo de las columnas osea
+                     % suma fila por fila 
+    inicio=(l-1)*N+1;
+    fin=l*N;
+    s(inicio:fin)= suma;
 end
