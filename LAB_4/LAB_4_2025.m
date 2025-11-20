@@ -45,7 +45,7 @@ for l = 1:L
     g_bit(l,:) = grupos_bit;  
     [a_k,b_k] = mapeo_16QAM(grupos_bit);
     for k=1:K
-         s_k(:,k)= a_k(k)* cos(2*pi*f_k(k) * t )- 1j* b_k(k)* sin(2*pi*f_k(k)* t) ; 
+         s_k(:,k)= a_k(k)* cos(2*pi*f_k(k) * t )-  b_k(k)* sin(2*pi*f_k(k)* t) ; 
     end
     suma=sum(s_k,2);
     inicio=(l-1)*N+1;
@@ -81,7 +81,7 @@ for l = 1:L
     [a_k,b_k] = mapeo_16QAM(grupos_bit);
     s_k = zeros(N,K);
     for k=1:K
-         s_k(:,k)= a_k(k)* cos(2*pi*f_k(k) * t )- 1j* b_k(k)* sin(2*pi*f_k(k)* t) ; 
+         s_k(:,k)= a_k(k)* cos(2*pi*f_k(k) * t )-  b_k(k)* sin(2*pi*f_k(k)* t) ; 
     end
     suma=sum(s_k,2); % suma los elementos a lo largo de las columnas osea
                      % suma fila por fila 
