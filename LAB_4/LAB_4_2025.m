@@ -140,3 +140,11 @@ xlabel('Potencia instantánea');
 ylabel('Cantidad de muestras');
 title('Histograma de potencia instantánea');
 grid on;
+
+%% Actividad 5
+
+% Tasa de transmisión: cantidad de bits por segundo que se transfiere en
+% una comunicación R= (numero de bits por símbolo)/(duración del símbolo)
+
+bits_por_simbolo = 12 * 4; % 12 grupos de 4 bits
+R = bits_por_simbolo / Tsym; % bits/s  (=7.2 kbps)
