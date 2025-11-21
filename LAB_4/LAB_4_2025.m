@@ -89,3 +89,36 @@ for l = 1:L
     fin=l*N;
     s(inicio:fin)= suma;
 end
+
+%% Actividad 3
+
+Nfft = 2^nextpow2(length(s));  % Número de puntos de FFT mayor que la 
+                               % longitud de s para que haya una alta
+                               % resolución espectral y que los picos se
+                               % vean como curvas suaves.
+
+S = fft(s, Nfft);   % Transformada de Fourier
+
+S_norm= S/Nfft;     % Transformada de Fourier normalizada
+
+f = (0:Nfft-1)*(fs/Nfft)/1e3; % Vector de frecuencias (en kHz)
+
+S_dB = 20*log10(abs(S));% Magnitud en dB
+
+% Gráficas:
+
+figure;
+plot(f, S_dB);
+xlabel('Frecuencia [kHz]');
+ylabel('Magnitud [dB]');
+title('Espectro de la señal OFDM');
+xlim([38 41]); % Limitar a la banda de interés
+set(gca, 'XTick', 38.6:0.1:40.4); 
+grid on;
+
+figure;
+stem(f, abs(S_norm));
+title('FFT de s[n] ');
+xlabel('Frecuencia Hz');
+ylabel('|S(f)|');
+grid on;
