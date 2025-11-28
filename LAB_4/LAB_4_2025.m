@@ -139,6 +139,7 @@ hist(P_inst, 50); % 50 bins
 xlabel('Potencia instantánea');
 ylabel('Cantidad de muestras');
 title('Histograma de potencia instantánea');
+set(gca, 'XTick', 0:10:100); 
 grid on;
 
 %% Actividad 5
