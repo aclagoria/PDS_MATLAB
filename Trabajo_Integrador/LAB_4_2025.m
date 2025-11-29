@@ -1,0 +1,150 @@
+clear all
+close all
+
+
+fs = 153.6e3;       % Frecuencia de muestreo de la señal modulada 156.6 kHz
+k = (0:11)';          % Índices de los 12 canales 
+f_k = (38.7 + 0.15 * k) * 1e3; % Frecuencias de portadora en Hz 
+delta_f = 0.15e3;     % Separación de frecuencia (150 Hz) entre canales
+Tsym = 1 / delta_f;   % Período de símbolo (~6.667 ms)
+
+N = round(Tsym * fs); % cantidad de muestras de la señal portadora (1024)
+t = (0:N-1) / fs; % Vector de tiempo para un símbolo
+
+CH = 4;               % n° de canales  de 12 bits
+K = 12;
+% %% Actividad 1
+% 
+% % Costruccion de señales de 12 bit en forma de columna
+% L = 10;               % muestras por canal
+% 
+% ch1 = round(linspace(0, 4095, L))';   % Canal 1: Rampa lineal (de 0 a 4095)
+% 
+% ch2 = mod(round(linspace(0, 8190, L))', 4096);  % Canal 2: Diente de sierra 
+% 
+% ch3 = ones(L, 1) * 2048;   % Canal 3: Constante (valor medio)
+% 
+% ch4 = randi([0, 4095], L, 1);  % Canal 4: Aleatoria (valores 12 bit)
+% 
+% 
+% bin12 = cell(L, CH);  % matriz de celdas 10x4
+% g_bit = cell(L,12);
+% a_k = zeros(1,12);
+% b_k = zeros(1,12);
+% s_k = zeros(N,K);
+% s= zeros(L*N,1);
+% for l = 1:L
+%     muestras_actuales = [ch1(l), ch2(l), ch3(l), ch4(l)];
+%     g4bit_ch = cell(1,3);
+%     grupos_bit = cell(1,12);
+%     for ch = 1:CH
+%         bin12{l, ch} = dec2bin(muestras_actuales(ch), 12);
+%         g4bit_ch = [grupo_4bit(bin12{l, ch})];
+%         grupos_bit(((ch-1)*3+1):((ch-1)*3+3))= g4bit_ch;
+%     end
+%     g_bit(l,:) = grupos_bit;  
+%     [a_k,b_k] = mapeo_16QAM(grupos_bit);
+%     for k=1:K
+%          s_k(:,k)= a_k(k)* cos(2*pi*f_k(k) * t )-  b_k(k)* sin(2*pi*f_k(k)* t) ; 
+%     end
+%     suma=sum(s_k,2);
+%     inicio=(l-1)*N+1;
+%     fin=l*N;
+%     s(inicio:fin)= suma;
+% end
+%% Actividad 2
+
+% Generación de audios de 1 segundo
+[ch1, Fs1]= partir_audio('fati_Fs8k_12bit.wav',1,1);
+
+[ch2, Fs2]= partir_audio('fati_Fs8k_12bit.wav',1,3);
+
+[ch3, Fs3]= partir_audio('caro_Fs8k_12bit.wav',1,1);
+
+[ch4, Fs4]= partir_audio('caro_Fs8k_12bit.wav',1,3);
+
+L = min([length(ch1), length(ch2), length(ch3), length(ch4)]);  % cantidad de 
+    % muestras de cada canal de voz, es para asegurar igual tamaño despues
+
+g4bit_ch = cell(1,3);
+grupos_bit = cell(1,12);
+a_k = zeros(1,12);
+b_k = zeros(1,12);
+s= zeros(L*N,1); % Señal modulada
+for l = 1:L
+    muestras_actuales = [ch1(l), ch2(l), ch3(l), ch4(l)];
+    for ch = 1:CH
+        bin12 = convertir_muestra16a12bin(muestras_actuales(ch));
+        g4bit_ch = [grupo_4bit(bin12)];
+        grupos_bit(((ch-1)*3+1):((ch-1)*3+3))= g4bit_ch;
+    end
+    [a_k,b_k] = mapeo_16QAM(grupos_bit);
+    s_k = zeros(N,K);
+    for k=1:K
+         s_k(:,k)= a_k(k)* cos(2*pi*f_k(k) * t )-  b_k(k)* sin(2*pi*f_k(k)* t) ; 
+    end
+    suma=sum(s_k,2); % suma los elementos a lo largo de las columnas osea
+                     % suma fila por fila 
+    inicio=(l-1)*N+1;
+    fin=l*N;
+    s(inicio:fin)= suma;
+end
+
+% %% Actividad 3
+% 
+% Nfft = 2^nextpow2(length(s));  % Número de puntos de FFT mayor que la 
+%                                % longitud de s para que haya una alta
+%                                % resolución espectral y que los picos se
+%                                % vean como curvas suaves.
+% 
+% S = fft(s, Nfft);   % Transformada de Fourier
+% 
+% S_norm= S/Nfft;     % Transformada de Fourier normalizada
+% 
+% f = (0:Nfft-1)*(fs/Nfft)/1e3; % Vector de frecuencias (en kHz)
+% 
+% S_dB = 20*log10(abs(S));% Magnitud en dB
+% 
+% % Gráficas:
+% 
+% figure;
+% plot(f, S_dB);
+% xlabel('Frecuencia [kHz]');
+% ylabel('Magnitud [dB]');
+% title('Espectro de la señal OFDM');
+% xlim([38 41]); % Limitar a la banda de interés
+% set(gca, 'XTick', 38.6:0.1:40.4); 
+% grid on;
+% 
+% figure;
+% stem(f, abs(S_norm));
+% title('FFT de s[n] ');
+% xlabel('Frecuencia Hz');
+% ylabel('|S(f)|');
+% grid on;
+
+%% Actividad 4
+
+P_inst = abs(s).^2;    % Potencia instantánea
+
+P_mean = mean(P_inst); % Potencia media
+
+P_max = max(P_inst);   % Potencia máxima
+
+PAPR = P_max / P_mean; % Razón de potencia máxima a potencia media PAPR
+
+% Histograma
+figure;
+hist(P_inst, 50); % 50 bins
+xlabel('Potencia instantánea');
+ylabel('Cantidad de muestras');
+title('Histograma de potencia instantánea');
+grid on;
+
+%% Actividad 5
+
+% Tasa de transmisión: cantidad de bits por segundo que se transfiere en
+% una comunicación R= (numero de bits por símbolo)/(duración del símbolo)
+
+bits_por_simbolo = 12 * 4; % 12 grupos de 4 bits
+R = bits_por_simbolo / Tsym; % bits/s  (=7.2 kbps)
