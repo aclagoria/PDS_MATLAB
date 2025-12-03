@@ -48,9 +48,7 @@ for l = 1:L
 end
 conj_IyQ=conj(IyQ);
 espejo=conj_IyQ(:, end:-1:1);
-for k=1: 13
-    
-end
+
 % Actividad 2 – Generar la señal modulada en Frecuencia Intermedia          
 %               utilizando la IFFT
 % • Para la señal modulada en Frecuencia Intermedia se utiliza una 
@@ -66,6 +64,8 @@ end
 % • Graficar la señal correspondiente a los primeros cuatro símbolos.
 % • Utilizando la FFT graficar el espectro de la señal correspondiente a 
 %   los 80 símbolos.
+%
+% --------------------- Desarrollo--------------------
 
 fs= 4.8e3;
 delta_f = 150;
@@ -79,16 +79,16 @@ for l=1 : L
     X(l,20:31)= espejo(l,:);
     x(l,:)= N* ifft(X(l,:))/2;
 end
-x_1 = x';
-x_1 = x_1(:);
+x = x';
+x = x(:);
 
 % Para graficar la señal correxpondiente a los primero 4 símbolos debemos
 % tomar los primeros 4*N elementos de x_1
 e =(0:4*N-1);
-x_2=x_1(1:4*N);
+x_4simb=x(1:4*N);
 
 figure;
-stem (e,x_2, 'fill', 'Color', 'b','LineWidth',0.5 );   % grosor
+stem (e,x_4simb, 'fill', 'Color', 'b','LineWidth',0.5 );   % grosor
 xlabel('numero de muesta de s');
 ylabel('Amplitud');
 title('Señal de los primeros 4 símbolos');
@@ -96,18 +96,18 @@ set(gca, 'XTick', 0:32:128);
 grid on;
 
 % Gráfica del espectro de la señal correspondiente a los 80 símbolos
-Nfft = length(x_1);  
+Nfft = length(x);  
 
-X1 = fft(x_1, Nfft);   % Transformada de Fourier
+X = fft(x, Nfft);   % Transformada de Fourier
 
-X1_norm= X1/Nfft;     % Transformada de Fourier normalizada
+X_norm= X/Nfft;     % Transformada de Fourier normalizada
 
 f = (0:Nfft-1)*(fs/Nfft)/1e3; % Vector de frecuencias (en kHz)
 
-X1_dB = 20*log10(abs(X1));% Magnitud en dB
+X_dB = 20*log10(abs(X));% Magnitud en dB
 
 figure;
-plot(f, X1_dB, 'LineWidth', 1, 'Color', 'b');
+plot(f, X_dB, 'LineWidth', 1, 'Color', 'b');
 xlabel('Frecuencia [kHz]');
 ylabel('Magnitud [dB]');
 title('Espectro de la señal OFDM');
@@ -128,10 +128,109 @@ set(gcf, 'PaperPosition', [0.5 0.5 28.7 20.0]);   % Márgenes de 1 cm aprox.
 print(gcf, '-dpdf', 'Espectro_OFDM.pdf');
 
 figure;
-stem(f, abs(X1_norm));
+stem(f, abs(X_norm));
 title('Espectro de la señal');
 xlabel('Frecuencia [kHz]');
 ylabel('Magnitud en veces');
 grid on;
 
+
+% Actividad 3 – Obtener la señal modulada en la frecuencia portadora
+% • El traslado en frecuencia y el filtrado posterior de la señal para 
+% eliminar la banda lateral inferior es realizada por un sistema analógico.
+% • A la salida del Conversor Digital Analógico se aplica un filtro 
+% analógico pasa bajos, obteniéndose la señal x(t).
+% • El traslado en frecuencia se hace utilizando un oscilador local de 
+% frecuencia f0=38,4 kHz. s(t)=x(t)cos(2pi*f0*t)
+% • El filtro pasa banda que elimina la banda lateral inferior también debe
+% adecuar la señal al espectro asignado, que va de 38,4 kHz a 40,65 kHz
+% • La señal recibida por el receptor es afectada por el canal de 
+% transmisión, al que se asigna un sistema equivalente con la función de 
+% transferencia H(z)=1+0,9z^?2, correspondiente a la frecuencia de muestreo 
+% fs=153,6 kHz.
+% • Simular el sistema analógico, implementando el filtro pasa bajos, el 
+% traslado en frecuencia y el filtro pasa banda y el canal de transmisión 
+% con una frecuencia de muestreo fs=153,6 kHz.
+% • Graficar el espectro de la señal, utilizando la FFT, en cada una de las
+% etapas.
+% • Justificar si se puede evitar el filtro pasa bajos.
+%
+% --------------------- Desarrollo--------------------
+% Para simular el CDA aumentamos la frecuencia de muestreo (sobremuestrear)
+f_ol = 38.4e3;   % frecuencia del oscilador local
+fs_rf = 153.6e3; % frecuencia de muestreo de señal de RF
+factor=fs_rf/fs; % factor  de remuestreo
+x1=zeros(factor*length(x),1);
+for n=1 : length(x)
+    for i=1: factor
+        x1(((n-1)*factor+1):factor*n)=x(n);
+    end
+end
+
+t=(0: length(x)-1);
+t1=(0: length(x1)-1);
+
+% Grafica de la señal del primer simbolo
+figure;
+subplot(2,2,1);
+stem(t, x);  %
+xlabel('numero de muesta de x');
+ylabel('Amplitud');
+title('Señal del primer símbolo fs=4,8kHz');
+% set(gca, 'XTick', 0:1:32); 
+xlim([0 N]);
+grid on;
+
+subplot(2,2,2);
+stem(t1, x1);
+xlabel('numero de muesta de x1');
+ylabel('Amplitud');
+title('Señal del primer símbolo fs=153,6kHz');
+xlim([0 N*N]);
+set(gca, 'XTick', 0:32:3*N); 
+grid on;
+
+subplot(2,2,3);
+stairs(t, x);
+xlabel('numero de muesta de x');
+ylabel('Amplitud');
+title('Señal del primer símbolo');
+% set(gca, 'XTick', 0:1:32); 
+xlim([0 N]);
+grid on;
+
+subplot(2,2,4);
+stairs(t1, x1);% 
+xlabel('numero de muesta de x1');
+ylabel('Amplitud');
+title('Señal del primer símbolo');
+xlim([0 N*N]);
+set(gca, 'XTick', 0:32:3*N); 
+grid on;
+
+Nfft1 = length(x1);  
+
+X1 = fft(x1, Nfft1);   % Transformada de Fourier
+
+X1_norm= X1/Nfft1;     % Transformada de Fourier normalizada
+
+f1 = (0:Nfft1-1)*(fs_rf/Nfft1)/1e3; % Vector de frecuencias (en kHz)
+
+X1_dB = 20*log10(abs(X1));% Magnitud en dB
+
+
+figure;
+plot(f1, X1_dB, 'LineWidth', 1, 'Color', 'b');
+xlabel('Frecuencia [kHz]');
+ylabel('Magnitud [dB]');
+title('Espectro x1 ');
+set(gca, 'XTick', 0:4.8:3*4.8); 
+grid on;
+
+figure;
+stem(f1, abs(X1_norm));
+title('Espectro de la señal x1');
+xlabel('Frecuencia [kHz]');
+ylabel('Magnitud en veces');
+grid on;
 
