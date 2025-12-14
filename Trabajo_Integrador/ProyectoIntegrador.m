@@ -337,10 +337,11 @@ f0 = 38.4e3;   % frecuencia del oscilador local
 
     % Gráficas respuesta en frecuencia: FBP Analógico Vs FBP Digital 
     % gráfica opcional
-    [Ha_bp, fa_bp] = freqs(b_a_bp, a_a_bp, 100*1024); % Dominio s, 102400 puntos
+    [Ha_bp, wa_bp] = freqs(b_a_bp, a_a_bp, 100*1024); % Dominio s, 102400 
+                                                  % puntos,wa_bp=2*pi*fa_bp
     figure;
     subplot(2,1,1);
-    plot(fa_bp/(2*pi*1e3), 20*log10(abs(Ha_bp)));
+    plot(wa_bp/(2*pi*1e3), 20*log10(abs(Ha_bp)));
     xlabel('Frecuencia [kHz]'); ylabel('Magnitud [dB]');
     title('Filtro analógico  Pasa Banda Butterworth');
     grid on; 
@@ -348,9 +349,9 @@ f0 = 38.4e3;   % frecuencia del oscilador local
     ylim([-6 1]); 
     set(gca, 'XTick', (38.4-0.3):0.15:(41.25)); 
 
-    [Hd_bp, fd_bp] = freqz(b_d_bp, a_d_bp, 10*1024, fs_rf); % Dominio z
+    [Hd_bp, wd_bp] = freqz(b_d_bp, a_d_bp, 10*1024, fs_rf); % Dominio z
     subplot(2,1,2);
-    plot(fd_bp/1e3, 20*log10(abs(Hd_bp)));
+    plot(wd_bp/1e3, 20*log10(abs(Hd_bp)));
     xlabel('Frecuencia [kHz]'); ylabel('Magnitud [dB]');
     title('Filtro digital Pasa Banda equivalente (impinvar)');
     grid on;
@@ -358,27 +359,46 @@ f0 = 38.4e3;   % frecuencia del oscilador local
     ylim([-6 1]); 
     set(gca, 'XTick', (38.4-0.3):0.15:(41.25)); 
     
+    figure;
+    subplot(2,1,1);
+    plot(wa_bp/(2*pi*1e3), unwrap(angle(Ha_bp))*180/pi);
+    xlabel('Frecuencia [Hz]');
+    ylabel('Fase [°]');
+    title('Filtro analógico  Pasa Banda Butterworth');
+    grid on;
+    xlim([37.35 41.7]);
+    set(gca, 'XTick', (38.4-0.3):0.15:(41.25));
+    
+    subplot(2,1,2);
+    plot(wd_bp/1e3, unwrap(angle(Hd_bp))*180/pi);
+    xlabel('Frecuencia [Hz]');
+    ylabel('Fase [°]');
+    title('Filtro digital Pasa Banda equivalente (impinvar)');
+    grid on;
+    xlim([37.35 41.7]);
+    set(gca, 'XTick', (38.4-0.3):0.15:(41.25));
+    
+    
     % Gráficas conjuntas
-
-    figure1 = figure('Color',[1 1 1]);  % fondo blanco
-
-    axes1 = axes('Parent', figure1, ...
-        'XGrid','on',...
-        'XColor', [0.3 0.3 0.3], ...   % 
-        'YGrid','on',...
-        'YColor', [0.3 0.3 0.3], ...   % 
-        'ZColor', [0.3 0.3 0.3]);      % 
-    xlim(axes1, [0 205]);
-    ylim(axes1, [1000 1400]);
-    box(axes1,'on');
-    hold(axes1,'all');
-    plot(fa_bp/(2*pi*1e3), 20*log10(abs(Ha_bp)));
-    plot(fd_bp/1e3, 20*log10(abs(Hd_bp)),'g--');
+    figure;
+    plot(wa_bp/(2*pi*1e3), 20*log10(abs(Ha_bp))); hold on;
+    plot(wd_bp/1e3, 20*log10(abs(Hd_bp)),'r--', 'LineWidth', 1);
     xlabel('Frecuencia [kHz]'); ylabel('Magnitud [dB]');
     title('Filtro analógico Butterworth diseño manual Vs Filtro digital Pasa Banda equivalente');
     grid on; 
     xlim([(f0_bp*9.6/10)/1e3 (f0_bp*10.4/10)/1e3]); ylim([-6 1]); set(gca, 'XTick', 38.7:(40.35-38.7):40.35);
-
+    legend('Filtro analogico', 'Filtro digital');
+    
+    figure;
+    plot(wa_bp/(2*pi*1e3), unwrap(angle(Ha_bp))*180/pi,'LineWidth', 1); hold on;
+    plot(wd_bp/1e3, unwrap(angle(Hd_bp))*180/pi, 'r--', 'LineWidth', 1);
+    xlabel('Frecuencia [Hz]');
+    ylabel('Fase [°]');
+    title('Filtro analógico Butterworth diseño manual Vs Filtro digital Pasa Banda equivalente');
+    grid on;
+    xlim([(f0_bp*7/10)/1e3 (f0_bp*12/10)/1e3]);
+    set(gca, 'XTick', 38.7:(40.35-38.7):40.35);
+    legend('Filtro analogico', 'Filtro digital');
 
 % Canal de transmisión --> función de transferencia H(z)=1+0,9z^2,
 % correspondiente a la frecuencia de muestreo fs=153,6 kHz.
