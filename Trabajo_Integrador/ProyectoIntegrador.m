@@ -240,55 +240,20 @@ fs_rf = 153.6e3; % frecuencia de muestreo de señal de RF
 
     % Diseño de filtro analógico pasa bajo de manera manual
     fp=2.4e3;
-    fb=4.8e3;
-    Ap=1.5;
+    fb=2.85e3;
+    Ap=1.5; % Como luego debe filtrarce con un pasa banda se elige una  
+        	% atenuación se elige una atenuación de 1.5 dB, proyectando que 
+			% entre los dos filtros haya una atenuacion total de 3dB en la 
+            % banda de interés. 
     Ab=30;
-    wb=fb/fp;
-    orden =ceil(.5*log10((10^(Ab/10)-1)/(10^(Ap/10)-1))/log10(wb));
-    fc_1 = fp/((10^(Ap/10))-1)^(1/(2*orden));% caso a
-    [b, a] = butter(orden,1,'s'); % Normalizado
-    [b_a, a_a] =lp2lp(b,a,2*pi*fc_1);
+    
+    [b_a, a_a, N_lp] =lowpass_analogico_manual(fp, fb, Ap, Ab);
+    
+    % Como el orden del filtro pasa bajo diseñado es muy alto (N_lp = 23)y
+    % dado que posteriormente se va a utilizar un filtro pasa banda, este
+    % filtro puede no usarse.
 
-    % Filtro digital a partir de filto analogico
-    fs_d = fs_rf; % frecuencia de muestreo digital
-    [b_d, a_d] = impinvar(b_a, a_a, fs_d); 
-    x1_filt = filter(b_d, a_d, x1);
-
-    % Gráficas de espectros de señal filtrada con el pasa bajo digital
-    Nfft_filt = length(x1_filt);
-    X1_filt = fft(x1_filt, Nfft_filt)/Nfft_filt; % normalizado
-    f = (0:Nfft_filt-1)*(fs_rf/Nfft_filt)/1e3; % en kHz
-    figure;
-    plot(f, abs(X1_filt));
-    xlabel('Frecuencia [kHz]');
-    ylabel('Magnitud en veces');
-    title('Espectro señal filtrada LPF');
-    grid on;set(gca, 'XTick', 0:4.8:3*4.8);
-
-    figure;
-    plot(f, 20*log10(abs(X1_filt)));
-    xlabel('Frecuencia [kHz]');
-    ylabel('Magnitud [dB]');
-    title('Espectro señal filtrada LPF');
-    grid on; set(gca, 'XTick', 0:4.8:3*4.8); 
-
-    % Gráficas respuesta en frecuencia: FLP Analógico Vs FLP Digital
-    % gráfica opcional
-    [Ha, fa] = freqs(b_a, a_a, 1024); % dominio s, 1024 puntos
-    figure;
-    subplot(2,1,1);
-    plot(fa/(2*pi*1e3), 20*log10(abs(Ha)));
-    xlabel('Frecuencia [kHz]'); ylabel('Magnitud [dB]');
-    title('Filtro analógico Pasa Bajo Butterworth');
-    grid on; xlim([0 6]); ylim([-45 5]); set(gca, 'XTick', 0:1.2:6);
-
-    [Hd, fd] = freqz(b_d, a_d, 1024, fs_rf);
-    subplot(2,1,2);
-    plot(fd/1e3, 20*log10(abs(Hd)));
-    xlabel('Frecuencia [kHz]'); ylabel('Magnitud [dB]');
-    title('Filtro digital Pasa Bajo equivalente (impinvar)');
-    grid on;  xlim([0 6]); ylim([-45 5]); set(gca, 'XTick', 0:1.2:6);
-
+x1_filt = x1;
 
 % Traslado en frecuencia
 f0 = 38.4e3;   % frecuencia del oscilador local
@@ -333,49 +298,22 @@ f0 = 38.4e3;   % frecuencia del oscilador local
     grid on;
 
 % Diseño de filtro pasa banda
-    % Diseño de filtro analógico pasa banda de manera directa
-    % fp1 = 38.4e3; fp2 = 40.65e3; frec de paso originales        
-    % fs1 = 38.1e3; fs2 = 41.25e3; frec de rechazo originales       
-
-    fp1 = 38.4e3;         wp1 = 2*pi*fp1;
-    fp2 = 40.65e3;        wp2 = 2*pi*fp2;
-    fs1 = 37.5e3;         ws1 = 2*pi*fs1;
-    fs2 = 41.5e3;         ws2 = 2*pi*fs2;
-    Ap = 1;
-    As = 35;
-    f0 =(fp1*fp2)^(1/2);   w0 = 2*pi*f0;
-    B = 2*pi*(fp2 - fp1);
-
-    Wp = [wp1 wp2];   % Frecuencias de paso en rad/s
-    Ws = [ws1 ws2];   % Frecuencias de rechazo en rad/s
-
-    [N_bp, Wn_bp] = buttord(Wp, Ws, Ap, As, 's');
-    [b_a_bp, a_a_bp] = butter(N_bp, Wn_bp, 'bandpass', 's');
-
-    % Filtro digital a partir de filto analogico
+    % Diseño de filtro analógico pasa banda de manera manual
+    % Como no se utiliza el filtro pasa bajo, para que el orden del pasa 
+    % banda no sea alto (un numero aceptable es de hasta 16) la atenuacion 
+    % en la banda de paso la tomamos como máxima de 3dB.          
+    fp1 = 38.7e3;    fp2 = 40.35e3;     Ap = 3;    % frecuencias de paso   
+    fs1 = 38.4e3;   fs2 = 40.65e3;     As = 30;   % frecuencias de rechazo
+          
+    [b_a_bp, a_a_bp,N_bp,f0_bp] = bandpass_analogico_manual( fs1,fp1, fp2, fs2,  Ap, As);
+    % El oreden nos da de 23, lo que no es aceptable. Entonces ajustamos
+    % las frecuencias de rechazo alejandolas de la banda pasante
+    fs1 = 37.95e3;   fs2 = 41.25e3;  
+    [b_a_bp, a_a_bp,N_bp,f0_bp] = bandpass_analogico_manual( fs1,fp1, fp2, fs2,  Ap, As);
     
-    % No se utiliza:
-    % [b_d_bp, a_d_bp] = impinvar(b_a_bp, a_a_bp, fs_rf); para sacar los
-    % directamente todos los coeficientes del filtro pasa banda digital, ya
-    % que aparecía la advertencia de que impinvar detectó que el filtro
-    % analógico  tiene polos muy cercanos o repetidos, lo cual genera 
-    % inestabilidad numérica al calcular la transformada al dominio z.
-    % Entonces se opto por descomponer en secciones de segundo para hacer 
-    % una version mas estable.  
-   
-    [sos, g] = tf2sos(b_a_bp, a_a_bp);  % Descomposición en secciones de 
-                                        % 2º orden
+    % Filtro digital a partir de filto analogico
+    [b_d_bp, a_d_bp] = impinvar(b_a_bp, a_a_bp, fs_rf);
 
-    b_d_bp = g;   % Ganancia inicial
-    a_d_bp = 1;
-
-    for i = 1:size(sos,1)
-        [b_d_sec, a_d_sec] = impinvar(sos(i,1:3), sos(i,4:6), fs_rf);
-        % Combinar secciones multiplicando polinomios
-        b_d_bp = conv(b_d_bp, b_d_sec);
-        a_d_bp = conv(a_d_bp, a_d_sec);
-    end
-   
     s_filt = filter(b_d_bp, a_d_bp, s);
 
     % Gráficas de espectros de señal filtrada con el pasa banda digital
@@ -399,7 +337,7 @@ f0 = 38.4e3;   % frecuencia del oscilador local
 
     % Gráficas respuesta en frecuencia: FBP Analógico Vs FBP Digital 
     % gráfica opcional
-    [Ha_bp, fa_bp] = freqs(b_a_bp, a_a_bp, 1024); % Dominio s, 1024 puntos
+    [Ha_bp, fa_bp] = freqs(b_a_bp, a_a_bp, 100*1024); % Dominio s, 102400 puntos
     figure;
     subplot(2,1,1);
     plot(fa_bp/(2*pi*1e3), 20*log10(abs(Ha_bp)));
@@ -410,7 +348,7 @@ f0 = 38.4e3;   % frecuencia del oscilador local
     ylim([-6 1]); 
     set(gca, 'XTick', (38.4-0.3):0.15:(41.25)); 
 
-    [Hd_bp, fd_bp] = freqz(b_d_bp, a_d_bp, 1024, fs_rf); % Dominio z
+    [Hd_bp, fd_bp] = freqz(b_d_bp, a_d_bp, 10*1024, fs_rf); % Dominio z
     subplot(2,1,2);
     plot(fd_bp/1e3, 20*log10(abs(Hd_bp)));
     xlabel('Frecuencia [kHz]'); ylabel('Magnitud [dB]');
@@ -420,6 +358,28 @@ f0 = 38.4e3;   % frecuencia del oscilador local
     ylim([-6 1]); 
     set(gca, 'XTick', (38.4-0.3):0.15:(41.25)); 
     
+    % Gráficas conjuntas
+
+    figure1 = figure('Color',[1 1 1]);  % fondo blanco
+
+    axes1 = axes('Parent', figure1, ...
+        'XGrid','on',...
+        'XColor', [0.3 0.3 0.3], ...   % 
+        'YGrid','on',...
+        'YColor', [0.3 0.3 0.3], ...   % 
+        'ZColor', [0.3 0.3 0.3]);      % 
+    xlim(axes1, [0 205]);
+    ylim(axes1, [1000 1400]);
+    box(axes1,'on');
+    hold(axes1,'all');
+    plot(fa_bp/(2*pi*1e3), 20*log10(abs(Ha_bp)));
+    plot(fd_bp/1e3, 20*log10(abs(Hd_bp)),'g--');
+    xlabel('Frecuencia [kHz]'); ylabel('Magnitud [dB]');
+    title('Filtro analógico Butterworth diseño manual Vs Filtro digital Pasa Banda equivalente');
+    grid on; 
+    xlim([(f0_bp*9.6/10)/1e3 (f0_bp*10.4/10)/1e3]); ylim([-6 1]); set(gca, 'XTick', 38.7:(40.35-38.7):40.35);
+
+
 % Canal de transmisión --> función de transferencia H(z)=1+0,9z^2,
 % correspondiente a la frecuencia de muestreo fs=153,6 kHz.
 
@@ -439,7 +399,7 @@ f0 = 38.4e3;   % frecuencia del oscilador local
     title('Espectro señal recibida por el canal');
     grid on; 
     xlim([37 42]);
-    set(gca, 'XTick', 38.4:0.5:40.65);
+    set(gca, 'XTick', 38.4:0.15:40.65);
 
     figure;
     plot(f, 20*log10(abs(S_rx)));
@@ -448,4 +408,4 @@ f0 = 38.4e3;   % frecuencia del oscilador local
     title('Espectro señal recibida por el canal');
     grid on; 
     xlim([37 42]);
-    set(gca, 'XTick', 38.4:0.5:40.65);   
+    set(gca, 'XTick', 38.4:0.15:40.65);   
