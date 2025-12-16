@@ -1,7 +1,7 @@
 clear all
 close all
 
-% Actividad 1 - Preparar la señal digital a transmitir
+%% Actividad 1 - Preparar la señal digital a transmitir
 % • Se toman 80 muestras de cada una de las 4 señales de voz adquiridas en 
 %   la Práctica de Laboratorio N°2, fs=8 kHz, resolución de 12 bits. 
 %   Se deben tomar segmentos en los que haya actividad de voz.
@@ -49,7 +49,7 @@ end
 conj_IyQ=conj(IyQ);
 espejo=conj_IyQ(:, end:-1:1);
 
-% Actividad 2 – Generar la señal modulada en Frecuencia Intermedia          
+%% Actividad 2 – Generar la señal modulada en Frecuencia Intermedia          
 %               utilizando la IFFT
 % • Para la señal modulada en Frecuencia Intermedia se utiliza una 
 %   frecuencia de muestreo fs=4,8 kHz
@@ -118,14 +118,14 @@ set(gca, 'LineWidth', 1, 'FontSize', 9);
 %set(gcf, 'Color', [1 1 1]);
 grid on;
 
-% Configurar orientación y tamaño de papel
-set(gcf, 'PaperOrientation', 'landscape');    % Hoja horizontal
-set(gcf, 'PaperUnits', 'centimeters');        % Unidades en cm
-set(gcf, 'PaperSize', [29.7 21.0]);           % Tamaño A4 (ancho x alto)
-set(gcf, 'PaperPosition', [0.5 0.5 28.7 20.0]);   % Márgenes de 1 cm aprox.
-
-% Exportar como PDF (usa toda la hoja)
-print(gcf, '-dpdf', 'Espectro_OFDM.pdf');
+% % Configurar orientación y tamaño de papel
+% set(gcf, 'PaperOrientation', 'landscape');    % Hoja horizontal
+% set(gcf, 'PaperUnits', 'centimeters');        % Unidades en cm
+% set(gcf, 'PaperSize', [29.7 21.0]);           % Tamaño A4 (ancho x alto)
+% set(gcf, 'PaperPosition', [0.5 0.5 28.7 20.0]);   % Márgenes de 1 cm aprox.
+% 
+% % Exportar como PDF (usa toda la hoja)
+% print(gcf, '-dpdf', 'Espectro_OFDM.pdf');
 
 figure;
 stem(f, abs(X_norm));
@@ -135,7 +135,7 @@ ylabel('Magnitud en veces');
 grid on;
 
 
-% Actividad 3 – Obtener la señal modulada en la frecuencia portadora
+%% Actividad 3 – Obtener la señal modulada en la frecuencia portadora
 % • El traslado en frecuencia y el filtrado posterior de la señal para 
 % eliminar la banda lateral inferior es realizada por un sistema analógico.
 % • A la salida del Conversor Digital Analógico se aplica un filtro 
@@ -173,7 +173,7 @@ fs_rf = 153.6e3; % frecuencia de muestreo de señal de RF
 
     % Grafica de la señal del primer simbolo
     figure;
-    subplot(2,2,1);
+    subplot(2,1,1);
     stem(m, x);  %
     xlabel('numero de muesta de x');
     ylabel('Amplitud');
@@ -182,29 +182,11 @@ fs_rf = 153.6e3; % frecuencia de muestreo de señal de RF
     xlim([0 N]);
     grid on;
 
-    subplot(2,2,2);
+    subplot(2,1,2);
     stem(m1, x1);
     xlabel('numero de muesta de x1');
     ylabel('Amplitud');
     title('Señal del primer símbolo fs=153,6kHz');
-    xlim([0 N*N]);
-    set(gca, 'XTick', 0:32:3*N); 
-    grid on;
-
-    subplot(2,2,3);
-    stairs(m, x);
-    xlabel('numero de muesta de x');
-    ylabel('Amplitud');
-    title('Señal del primer símbolo');
-    % set(gca, 'XTick', 0:1:32); 
-    xlim([0 N]);
-    grid on;
-
-    subplot(2,2,4);
-    stairs(m1, x1);% 
-    xlabel('numero de muesta de x1');
-    ylabel('Amplitud');
-    title('Señal del primer símbolo');
     xlim([0 N*N]);
     set(gca, 'XTick', 0:32:3*N); 
     grid on;
@@ -242,12 +224,13 @@ fs_rf = 153.6e3; % frecuencia de muestreo de señal de RF
     fp=2.4e3;
     fb=2.85e3;
     Ap=1.5; % Como luego debe filtrarce con un pasa banda se elige una  
-        	% atenuación se elige una atenuación de 1.5 dB, proyectando que 
-			% entre los dos filtros haya una atenuacion total de 3dB en la 
-            % banda de interés. 
+        	% atenuación de 1.5 dB, proyectando que entre los dos filtros
+			% haya una atenuacion total de 3dB en la banda de interés. 
+         
     Ab=30;
     
     [b_a, a_a, N_lp] =lowpass_analogico_manual(fp, fb, Ap, Ab);
+	N_lp
     
     % Como el orden del filtro pasa bajo diseñado es muy alto (N_lp = 23)y
     % dado que posteriormente se va a utilizar un filtro pasa banda, este
@@ -300,21 +283,25 @@ f0 = 38.4e3;   % frecuencia del oscilador local
 % Diseño de filtro pasa banda
     % Diseño de filtro analógico pasa banda de manera manual
     % Como no se utiliza el filtro pasa bajo, para que el orden del pasa 
-    % banda no sea alto (un numero aceptable es de hasta 16) la atenuacion 
+    % banda no sea alto (un número aceptable es de hasta 16) la atenuacion 
     % en la banda de paso la tomamos como máxima de 3dB.          
     fp1 = 38.7e3;    fp2 = 40.35e3;     Ap = 3;    % frecuencias de paso   
     fs1 = 38.4e3;   fs2 = 40.65e3;     As = 30;   % frecuencias de rechazo
           
     [b_a_bp, a_a_bp,N_bp,f0_bp] = bandpass_analogico_manual( fs1,fp1, fp2, fs2,  Ap, As);
-    % El oreden nos da de 23, lo que no es aceptable. Entonces ajustamos
+    N_bp
+	% El orden nos da de 23, lo que no es aceptable. Entonces ajustamos
     % las frecuencias de rechazo alejandolas de la banda pasante
     fs1 = 37.95e3;   fs2 = 41.25e3;  
     [b_a_bp, a_a_bp,N_bp,f0_bp] = bandpass_analogico_manual( fs1,fp1, fp2, fs2,  Ap, As);
+    N_bp
+	% El orden que nos da ahora es de 12, lo que ya es aceptable.
     
-    % Filtro digital a partir de filto analogico
+    % Filtro digital a partir de filto analogico con respuesta invariante
+    % al impulso
     [b_d_bp, a_d_bp] = impinvar(b_a_bp, a_a_bp, fs_rf);
 
-    s_filt = filter(b_d_bp, a_d_bp, s);
+    s_filt = filter(b_d_bp, a_d_bp, s); % filtrado de señal
 
     % Gráficas de espectros de señal filtrada con el pasa banda digital
     Nfft_s_filt = length(s_filt);
@@ -349,9 +336,9 @@ f0 = 38.4e3;   % frecuencia del oscilador local
     ylim([-6 1]); 
     set(gca, 'XTick', (38.4-0.3):0.15:(41.25)); 
 
-    [Hd_bp, wd_bp] = freqz(b_d_bp, a_d_bp, 10*1024, fs_rf); % Dominio z
+    [Hd_bp, fd_bp] = freqz(b_d_bp, a_d_bp, 10*1024, fs_rf); % Dominio z
     subplot(2,1,2);
-    plot(wd_bp/1e3, 20*log10(abs(Hd_bp)));
+    plot(fd_bp/1e3, 20*log10(abs(Hd_bp)));
     xlabel('Frecuencia [kHz]'); ylabel('Magnitud [dB]');
     title('Filtro digital Pasa Banda equivalente (impinvar)');
     grid on;
@@ -370,7 +357,7 @@ f0 = 38.4e3;   % frecuencia del oscilador local
     set(gca, 'XTick', (38.4-0.3):0.15:(41.25));
     
     subplot(2,1,2);
-    plot(wd_bp/1e3, unwrap(angle(Hd_bp))*180/pi);
+    plot(fd_bp/1e3, unwrap(angle(Hd_bp))*180/pi);
     xlabel('Frecuencia [Hz]');
     ylabel('Fase [°]');
     title('Filtro digital Pasa Banda equivalente (impinvar)');
@@ -382,7 +369,7 @@ f0 = 38.4e3;   % frecuencia del oscilador local
     % Gráficas conjuntas
     figure;
     plot(wa_bp/(2*pi*1e3), 20*log10(abs(Ha_bp))); hold on;
-    plot(wd_bp/1e3, 20*log10(abs(Hd_bp)),'r--', 'LineWidth', 1);
+    plot(fd_bp/1e3, 20*log10(abs(Hd_bp)),'r--', 'LineWidth', 1);
     xlabel('Frecuencia [kHz]'); ylabel('Magnitud [dB]');
     title('Filtro analógico Butterworth diseño manual Vs Filtro digital Pasa Banda equivalente');
     grid on; 
@@ -391,7 +378,7 @@ f0 = 38.4e3;   % frecuencia del oscilador local
     
     figure;
     plot(wa_bp/(2*pi*1e3), unwrap(angle(Ha_bp))*180/pi,'LineWidth', 1); hold on;
-    plot(wd_bp/1e3, unwrap(angle(Hd_bp))*180/pi, 'r--', 'LineWidth', 1);
+    plot(fd_bp/1e3, unwrap(angle(Hd_bp))*180/pi, 'r--', 'LineWidth', 1);
     xlabel('Frecuencia [Hz]');
     ylabel('Fase [°]');
     title('Filtro analógico Butterworth diseño manual Vs Filtro digital Pasa Banda equivalente');
@@ -399,6 +386,10 @@ f0 = 38.4e3;   % frecuencia del oscilador local
     xlim([(f0_bp*7/10)/1e3 (f0_bp*12/10)/1e3]);
     set(gca, 'XTick', 38.7:(40.35-38.7):40.35);
     legend('Filtro analogico', 'Filtro digital');
+	
+	figure;
+zplane(b_d_bp, a_d_bp);
+title('Polos y ceros del filtro pasa banda');
 
 % Canal de transmisión --> función de transferencia H(z)=1+0,9z^2,
 % correspondiente a la frecuencia de muestreo fs=153,6 kHz.
@@ -406,7 +397,11 @@ f0 = 38.4e3;   % frecuencia del oscilador local
     % Coeficientes del canal
     Hz_chan = [1 0 0.9];  % 
     s_rx = filter(Hz_chan, 1, s_filt); % filtrar la señal por el canal
-
+    
+    figure;
+    zplane(Hz_chan, 1);
+    title('Polos y ceros del canal');
+    
     % Gráficas de espectro de la señal recibida
     Nfft_rx = length(s_rx);
     S_rx = fft(s_rx, Nfft_rx)/Nfft_rx;  % FFT normalizada
@@ -429,3 +424,112 @@ f0 = 38.4e3;   % frecuencia del oscilador local
     grid on; 
     xlim([37 42]);
     set(gca, 'XTick', 38.4:0.15:40.65);   
+
+    
+%% Actividad 4 – Implementar la ecualización de la señal en la frecuencia 
+% portadora
+% • Conociendo la función de transferencia de los sistemas desde el CDA 
+%   hasta el receptor, diseñar un ecualizador con un filtro FIR que tenga 
+%   como respuesta al impulso la respuesta al impulso limitada en el tiempo
+%   del sistema que hace el filtrado inverso.
+% • Justificar si se debe aplicar una ventana que no sea rectangular para 
+%   recortar la respuesta al impulso en el tiempo.
+% • En la señal correspondiente a cada símbolo implementar el filtro 
+%   ecualizador FIR utilizando la FFT.
+% • Utilizando la FFT, graficar el espectro de la señal de salida.
+% • Justificar que se puede demodular la señal en la implementación 
+%   del filtro FIR.
+%
+% --------------------- Desarrollo--------------------
+% Buscamos la funcion de transferencia total del sistema de la actividad 
+% anterior Hz_total = Hz_bp * Hz_ch   
+% ====Hacer la salvedad que no vamos a usar el pasa banda para el diseño del 
+% ecualizador porque tiene ceros fuera del circulo unitario=====
+
+%[H_bp_f, f_H] = freqz(b_d_bp, a_d_bp, 1024, fs_rf); % BPF digital
+[H_ch_f, f_H] = freqz(Hz_chan, 1, 1024, fs_rf);       % Canal
+H_total_f =  H_ch_f ; %H_bp_f.*;  % Respuesta en frecuencia total del sistema
+
+% Gráfica
+figure;
+plot(f_H/1e3, 20*log10(abs(H_ch_f)));
+title('Respuesta en frecuencia del canal');
+xlabel('Frecuencia [kHz]');
+ylabel('Magnitud [dB]');
+
+H_inv_f = 1 ./ H_total_f; 				% Respuesta en frecuencia 
+H_inv_f_conj= conj(H_inv_f);
+H_inv_f_conj=H_inv_f_conj(:, end:-1:1); % espejo
+
+H_inverso =[H_inv_f;H_inv_f_conj]; % =====Explicar por que
+
+h_inverso = ifft(H_inverso);%
+
+n_inverso = 0: length(h_inverso)-1;
+
+figure;
+stem(n_inverso, h_inverso);
+title('respuesta al impulso de h_inverso');
+xlabel('número de muestra');
+ylabel('Amplitud');
+
+% Diseño del ecualizador FIR 
+M = 128;    	               % número de coeficientes FIR
+h_inverso = h_inverso(1:M);    % truncamiento
+
+w = rectwin(M); 			   % ventana rectangular
+
+h_eq = h_inverso .* w;         % aplicar ventana 
+
+neq = 0: length(h_eq)-1;
+
+figure;
+stem (neq, h_eq);
+title('respuesta al impulso de h_eq');
+xlabel('número de muestra');
+ylabel('Amplitud');
+
+Nfft_eq = length(s_rx) + M - 1;
+
+H_eq_f = fft(h_eq, Nfft_eq);
+
+% Gráfica de respuesta en frecuencia
+f_eq =(0: length(H_eq_f)-1)*(fs_rf/Nfft_eq)/1e3;
+H_eq_f_dB = 20*log10(abs(H_eq_f));
+
+figure;
+plot(f_eq, H_eq_f_dB);%,  'k',  'LineWidth',1.4); hold on;
+title('Respuesta en frecuencia del ecualizador con ifft');
+xlabel('Frecuencia [kHz]');
+ylabel('Magnitud [dB]');
+xlim([0 85]);
+
+S_rx_f = fft(s_rx, Nfft_eq);
+
+S_eq_f = S_rx_f .* H_eq_f;
+
+s_eq = ifft(S_eq_f); % es este el final???
+
+
+% FFTs para comparación
+Nfft_eval = length(s_rx);
+Sfilt_fft  = fft(s_filt, Nfft_eval) / Nfft_eval;     % señal ideal
+Srx_fft = fft(s_rx, Nfft_eval) / Nfft_eval;   % señal recibida
+Seq_fft = fft(s_eq, Nfft_eval) / Nfft_eval;   % señal ecualizada
+f_eval  = (0:Nfft_eval-1)*(fs_rf/Nfft_eval)/1e3;  % vector frecuencia [kHz]
+
+% Magnitudes en dB
+Sfilt_dB  = 20*log10(abs(Sfilt_fft)  + eps);
+Srx_dB = 20*log10(abs(Srx_fft) + eps);
+Seq_dB = 20*log10(abs(Seq_fft) + eps);
+
+% Gráfica comparativa
+figure;
+plot(f_eval, Sfilt_dB,  'k',  'LineWidth',1.4); hold on;
+plot(f_eval, Srx_dB, 'r--','LineWidth',1.2);
+plot(f_eval, Seq_dB, 'b',  'LineWidth',1.2);
+xlabel('Frecuencia [kHz]');
+ylabel('Magnitud [dB]');
+title('Comparación de espectros: Original, Recibida y Ecualizada');
+legend('Original s_filt (ideal)', 'Recibida s_{rx}', 'Ecualizada s_{eq}');
+xlim([37 42]); grid on;
