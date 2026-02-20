@@ -1,6 +1,5 @@
-clear all
-close all
-
+clear all;
+close all;
 %% Actividad 1 - Preparar la señal digital a transmitir
 % • Se toman 80 muestras de cada una de las 4 señales de voz adquiridas en 
 %   la Práctica de Laboratorio N°2, fs=8 kHz, resolución de 12 bits. 
@@ -9,8 +8,9 @@ close all
 %   una muestra de cada una de las señales de voz.
 % • Se divide cada símbolo (conversor serie a paralelo) en doce grupos de 
 %   4 bits cada uno.
-%
-% --------------------- Desarrollo--------------------
+
+%--------------------------------Desarrollo--------------------------------
+
 %       Generación de audios de 1 segundo a partir de tiempos en los que
 %       sabemos que hay actividad de voz. 
 [ch1, Fs1]= partir_audio('fati_Fs8k_12bit.wav',1,1.22);
@@ -49,8 +49,8 @@ end
 conj_IyQ=conj(IyQ);
 espejo=conj_IyQ(:, end:-1:1);
 
-%% Actividad 2 – Generar la señal modulada en Frecuencia Intermedia          
-%               utilizando la IFFT
+%% Actividad 2 – Generar la señal modulada en Frecuencia Intermedia utilizando la IFFT         
+%
 % • Para la señal modulada en Frecuencia Intermedia se utiliza una 
 %   frecuencia de muestreo fs=4,8 kHz
 % • Por la eficiencia de la IFFT se toman 16 canales, para cada símbolo se 
@@ -64,8 +64,8 @@ espejo=conj_IyQ(:, end:-1:1);
 % • Graficar la señal correspondiente a los primeros cuatro símbolos.
 % • Utilizando la FFT graficar el espectro de la señal correspondiente a 
 %   los 80 símbolos.
-%
-% --------------------- Desarrollo--------------------
+
+%--------------------------------Desarrollo--------------------------------
 
 fs= 4.8e3;
 delta_f = 150;
@@ -112,20 +112,11 @@ xlabel('Frecuencia [kHz]');
 ylabel('Magnitud [dB]');
 title('Espectro de la señal OFDM');
 xlim([-0.150 4.95]);
-set(gca, 'XTick', 0:0.15:4.8); 
+set(gca, 'XTick', 0:0.15*2:4.8); 
 set(gca, 'YTick', -80:20:80); 
 set(gca, 'LineWidth', 1, 'FontSize', 9);
-%set(gcf, 'Color', [1 1 1]);
 grid on;
 
-% % Configurar orientación y tamaño de papel
-% set(gcf, 'PaperOrientation', 'landscape');    % Hoja horizontal
-% set(gcf, 'PaperUnits', 'centimeters');        % Unidades en cm
-% set(gcf, 'PaperSize', [29.7 21.0]);           % Tamaño A4 (ancho x alto)
-% set(gcf, 'PaperPosition', [0.5 0.5 28.7 20.0]);   % Márgenes de 1 cm aprox.
-% 
-% % Exportar como PDF (usa toda la hoja)
-% print(gcf, '-dpdf', 'Espectro_OFDM.pdf');
 
 figure;
 stem(f, abs(X_norm));
@@ -136,27 +127,29 @@ grid on;
 
 
 %% Actividad 3 – Obtener la señal modulada en la frecuencia portadora
+%
 % • El traslado en frecuencia y el filtrado posterior de la señal para 
-% eliminar la banda lateral inferior es realizada por un sistema analógico.
+%   eliminar la banda lateral inferior es realizada por un sistema analógico.
 % • A la salida del Conversor Digital Analógico se aplica un filtro 
-% analógico pasa bajos, obteniéndose la señal x(t).
+%   analógico pasa bajos, obteniéndose la señal x(t).
 % • El traslado en frecuencia se hace utilizando un oscilador local de 
-% frecuencia f0=38,4 kHz. s(t)=x(t)cos(2pi*f0*t)
+%   frecuencia f0=38,4 kHz. s(t)=x(t)cos(2pi*f0*t)
 % • El filtro pasa banda que elimina la banda lateral inferior también debe
-% adecuar la señal al espectro asignado, que va de 38,4 kHz a 40,65 kHz
+%   adecuar la señal al espectro asignado, que va de 38,4 kHz a 40,65 kHz
 % • La señal recibida por el receptor es afectada por el canal de 
-% transmisión, al que se asigna un sistema equivalente con la función de 
-% transferencia H(z)=1+0,9z^?2, correspondiente a la frecuencia de muestreo 
-% fs=153,6 kHz.
+%   transmisión, al que se asigna un sistema equivalente con la función de 
+%   transferencia H(z)=1+0,9z^?2, correspondiente a la frecuencia de muestreo 
+%   fs=153,6 kHz.
 % • Simular el sistema analógico, implementando el filtro pasa bajos, el 
-% traslado en frecuencia y el filtro pasa banda y el canal de transmisión 
-% con una frecuencia de muestreo fs=153,6 kHz.
+%   traslado en frecuencia y el filtro pasa banda y el canal de transmisión 
+%   con una frecuencia de muestreo fs=153,6 kHz.
 % • Graficar el espectro de la señal, utilizando la FFT, en cada una de las
-% etapas.
+%   etapas.
 % • Justificar si se puede evitar el filtro pasa bajos.
-%
-% --------------------- Desarrollo--------------------
-%
+
+
+%--------------------------------Desarrollo--------------------------------
+
 % Para simular el CDA aumentamos la frecuencia de muestreo (sobremuestrear)
 
 fs_rf = 153.6e3; % frecuencia de muestreo de señal de RF
@@ -171,14 +164,13 @@ fs_rf = 153.6e3; % frecuencia de muestreo de señal de RF
     m=(0: length(x)-1);
     m1=(0: length(x1)-1);
 
-    % Grafica de la señal del primer simbolo
+    % Gráfica de la señal del primer símbolo
     figure;
     subplot(2,1,1);
-    stem(m, x);  %
+    stem(m, x);  
     xlabel('numero de muesta de x');
     ylabel('Amplitud');
     title('Señal del primer símbolo fs=4,8kHz');
-    % set(gca, 'XTick', 0:1:32); 
     xlim([0 N]);
     grid on;
 
@@ -334,7 +326,7 @@ f0 = 38.4e3;   % frecuencia del oscilador local
     grid on; 
     xlim([37.35 41.7]);  
     ylim([-6 1]); 
-    set(gca, 'XTick', (38.4-0.3):0.15:(41.25)); 
+    set(gca, 'XTick', (38.4-0.3):0.15*2:(41.25)); 
 
     [Hd_bp, fd_bp] = freqz(b_d_bp, a_d_bp, 10*1024, fs_rf); % Dominio z
     subplot(2,1,2);
@@ -344,7 +336,7 @@ f0 = 38.4e3;   % frecuencia del oscilador local
     grid on;
     xlim([37.35 41.7]);  
     ylim([-6 1]); 
-    set(gca, 'XTick', (38.4-0.3):0.15:(41.25)); 
+    set(gca, 'XTick', (38.4-0.3):0.15*2:(41.25)); 
     
     figure;
     subplot(2,1,1);
@@ -354,7 +346,7 @@ f0 = 38.4e3;   % frecuencia del oscilador local
     title('Filtro analógico  Pasa Banda Butterworth');
     grid on;
     xlim([37.35 41.7]);
-    set(gca, 'XTick', (38.4-0.3):0.15:(41.25));
+    set(gca, 'XTick', (38.4-0.3):0.15*2:(41.25));
     
     subplot(2,1,2);
     plot(fd_bp/1e3, unwrap(angle(Hd_bp))*180/pi);
@@ -363,7 +355,7 @@ f0 = 38.4e3;   % frecuencia del oscilador local
     title('Filtro digital Pasa Banda equivalente (impinvar)');
     grid on;
     xlim([37.35 41.7]);
-    set(gca, 'XTick', (38.4-0.3):0.15:(41.25));
+    set(gca, 'XTick', (38.4-0.3):0.15*2:(41.25));
     
     
     % Gráficas conjuntas
@@ -411,19 +403,19 @@ title('Polos y ceros del filtro pasa banda');
     plot(f, abs(S_rx));
     xlabel('Frecuencia [kHz]');
     ylabel('Magnitud en veces');
-    title('Espectro señal recibida por el canal');
+    title('Espectro señal salida del canal s_r_x');
     grid on; 
     xlim([37 42]);
-    set(gca, 'XTick', 38.4:0.15:40.65);
+    set(gca, 'XTick', 38.4:0.15*2:40.65);
 
     figure;
     plot(f, 20*log10(abs(S_rx)));
     xlabel('Frecuencia [kHz]');
     ylabel('Magnitud [dB]');
-    title('Espectro señal recibida por el canal');
+    title('Espectro señal salida del canal s_r_x');
     grid on; 
     xlim([37 42]);
-    set(gca, 'XTick', 38.4:0.15:40.65);   
+    set(gca, 'XTick', 38.4:0.15*2:40.65);   
 
     
 %% Actividad 4 – Implementar la ecualización de la señal en la frecuencia 
@@ -439,12 +431,17 @@ title('Polos y ceros del filtro pasa banda');
 % • Utilizando la FFT, graficar el espectro de la señal de salida.
 % • Justificar que se puede demodular la señal en la implementación 
 %   del filtro FIR.
-%
-% --------------------- Desarrollo--------------------
-% Buscamos la funcion de transferencia total del sistema de la actividad 
-% anterior Hz_total = Hz_bp * Hz_ch   
-% ====Hacer la salvedad que no vamos a usar el pasa banda para el diseño del 
-% ecualizador porque tiene ceros fuera del circulo unitario=====
+
+%--------------------------------Desarrollo--------------------------------
+% Buscamos la función de transferencia total del sistema de la actividad 
+% anterior H_total = H_bp * H_ch , como punto de partida para diseñar el
+% ecualizador, este busca compensar las distorsiones aplicando un sistema
+% inverso H_eq * H_total = 1
+% Como el filtro pasa banda presenta ceros fuera del círculo unitario si lo
+% invertimos directamente se genera inestabilidad, el inverso de un cero
+% fuera del círculo es un polo fuera del círculo. Entonces se opta por
+% hacer el diseño para compensar solamente la distorsión que provoca el
+% canal de transmisión.
 
 %[H_bp_f, f_H] = freqz(b_d_bp, a_d_bp, 1024, fs_rf); % BPF digital
 [H_ch_f, f_H] = freqz(Hz_chan, 1, 1024, fs_rf);       % Canal
@@ -459,39 +456,62 @@ ylabel('Magnitud [dB]');
 
 H_inv_f = 1 ./ H_total_f; 				% Respuesta en frecuencia 
 H_inv_f_conj= conj(H_inv_f);
-H_inv_f_conj=H_inv_f_conj(:, end:-1:1); % espejo
+H_inv_f_conj=H_inv_f_conj(:, end:-1:1); % Espejo
 
-H_inverso =[H_inv_f;H_inv_f_conj]; % =====Explicar por que
+H_inverso =[H_inv_f;H_inv_f_conj]; % La ifft trabaja sobre secuencias 
+                                   % periódicas reales si H_inverso no es 
+                                   % simetrico conjugado respecto de 0 y
+                                   % Nyquist, su ifft da una señal compleja
+                                   % en el tiempo, que no representa una
+                                   % respuesta física real, por ello se
+                                   % construye H_inverso concatenando el
+                                   % vector inverso y su conjugado en
+                                   % espejo.
 
-h_inverso = ifft(H_inverso);%
+h_inverso = ifft(H_inverso); % Respuesta al impulso de H_inverso
 
 n_inverso = 0: length(h_inverso)-1;
 
 figure;
 stem(n_inverso, h_inverso);
-title('respuesta al impulso de h_inverso');
-xlabel('número de muestra');
+title('Respuesta al impulso h_{inverso}[n]');
+xlabel('Muestra');
 ylabel('Amplitud');
 
 % Diseño del ecualizador FIR 
-M = 128;    	               % número de coeficientes FIR
-h_inverso = h_inverso(1:M);    % truncamiento
+M = 128;        % Número de coeficientes FIR, se elige este valor porque: 
+                % es una potencia de 2 y proporciona una buena resolución
+                % frecuencial delta_f = fs_rf/M = 1.2 kHz , sufiente para        
+                %  modelar la banda de 38.4 a 40.65  
+                
+h_inverso = h_inverso(1:M);  % Se trunca para luego poder multiplicarce con 
+                             % la ventana que contendrá M elementos. 
 
-w = rectwin(M); 			   % ventana rectangular
-
-h_eq = h_inverso .* w;         % aplicar ventana 
+w = rectwin(M);     	  % Elección de ventana rectangular para el diseño
+ 
+h_eq = h_inverso .* w;         % Se aplica la ventana 
 
 neq = 0: length(h_eq)-1;
 
 figure;
 stem (neq, h_eq);
-title('respuesta al impulso de h_eq');
-xlabel('número de muestra');
+title('Respuesta al impulso h_{eq}[n]');
+xlabel('Muestra');
 ylabel('Amplitud');
 
-Nfft_eq = length(s_rx) + M - 1;
+Nfft_eq = length(s_rx) + M - 1;  % Cuando se realiza la multiplicación en 
+                                 % frecuencia con la fft y luego se aplica
+                                 % la ifft, lo que se obtiene es la
+                                 % convolución circular, donde la respuesta
+                                 % al impulso se superpone con el inicio de
+                                 % la secuencia y genera distorsión, para
+                                 % evitarla hay que rellenar con ceros a
+                                 % ambas secuencias a un tamaño de por lo
+                                 % menos la suma de las longitudes de cada
+                                 % una menos 1. 
 
-H_eq_f = fft(h_eq, Nfft_eq);
+H_eq_f = fft(h_eq, Nfft_eq);     % Al aplicarce la fft con un Nfft > tamano
+                                 % de h_eq se rellena con ceros.
 
 % Gráfica de respuesta en frecuencia
 f_eq =(0: length(H_eq_f)-1)*(fs_rf/Nfft_eq)/1e3;
@@ -499,24 +519,26 @@ H_eq_f_dB = 20*log10(abs(H_eq_f));
 
 figure;
 plot(f_eq, H_eq_f_dB);%,  'k',  'LineWidth',1.4); hold on;
-title('Respuesta en frecuencia del ecualizador con ifft');
+title('Respuesta en frecuencia del ecualizador diseñado con ifft');
 xlabel('Frecuencia [kHz]');
 ylabel('Magnitud [dB]');
 xlim([0 85]);
 
-S_rx_f = fft(s_rx, Nfft_eq);
+S_rx_f = fft(s_rx, Nfft_eq);  
 
-S_eq_f = S_rx_f .* H_eq_f;
+S_eq_f = S_rx_f .* H_eq_f;      % Como S_rx_f y H_eq_f provienen de señales
+                                % reales (o casi reales) su producto
+                                % mantiene la simetría conjugada
 
-s_eq = ifft(S_eq_f); % es este el final???
+s_eq = ifft(S_eq_f); % La señal a la salida del ecualizador es real
 
 
 % FFTs para comparación
 Nfft_eval = length(s_rx);
-Sfilt_fft  = fft(s_filt, Nfft_eval) / Nfft_eval;     % señal ideal
-Srx_fft = fft(s_rx, Nfft_eval) / Nfft_eval;   % señal recibida
-Seq_fft = fft(s_eq, Nfft_eval) / Nfft_eval;   % señal ecualizada
-f_eval  = (0:Nfft_eval-1)*(fs_rf/Nfft_eval)/1e3;  % vector frecuencia [kHz]
+Sfilt_fft  = fft(s_filt, Nfft_eval) / Nfft_eval; % señal ideal           
+Srx_fft = fft(s_rx, Nfft_eval) / Nfft_eval;      % señal recibida
+Seq_fft = fft(s_eq, Nfft_eval) / Nfft_eval;      % señal ecualizada
+f_eval  = (0:Nfft_eval-1)*(fs_rf/Nfft_eval)/1e3; % vector frecuencia [kHz]
 
 % Magnitudes en dB
 Sfilt_dB  = 20*log10(abs(Sfilt_fft)  + eps);
@@ -531,5 +553,5 @@ plot(f_eval, Seq_dB, 'b',  'LineWidth',1.2);
 xlabel('Frecuencia [kHz]');
 ylabel('Magnitud [dB]');
 title('Comparación de espectros: Original, Recibida y Ecualizada');
-legend('Original s_filt (ideal)', 'Recibida s_{rx}', 'Ecualizada s_{eq}');
+legend('Original s_{filt} (ideal)', 'Recibida s_{rx}', 'Ecualizada s_{eq}');
 xlim([37 42]); grid on;

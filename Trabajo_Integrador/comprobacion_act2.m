@@ -46,3 +46,4 @@ for l = 1:L
     fin=l*N;
     s(inicio:fin)= suma;
 end
+s

@@ -21,7 +21,7 @@ function [ b_bp, a_bp, N ,f0] = bandpass_analogico_manual( fs1,fp1, fp2, fs2,  A
 %          bajo normalizado)
 %   f0   : frecuancia cental del filtro
 %--------------------------------------------------------------------------
-
+   
 ws1=2*pi*fs1;
 ws2=2*pi*fs2;
 f0 =(fp1*fp2)^(1/2);    w0=2*pi*f0;
