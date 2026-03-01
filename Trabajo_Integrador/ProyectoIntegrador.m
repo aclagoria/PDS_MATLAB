@@ -417,7 +417,7 @@ title('Polos y ceros del filtro pasa banda');
     xlim([37 42]);
     set(gca, 'XTick', 38.4:0.15*2:40.65);   
 
-    
+
 %% Actividad 4 – Implementar la ecualización de la señal en la frecuencia 
 % portadora
 % • Conociendo la función de transferencia de los sistemas desde el CDA 
@@ -443,115 +443,202 @@ title('Polos y ceros del filtro pasa banda');
 % hacer el diseño para compensar solamente la distorsión que provoca el
 % canal de transmisión.
 
-%[H_bp_f, f_H] = freqz(b_d_bp, a_d_bp, 1024, fs_rf); % BPF digital
 [H_ch_f, f_H] = freqz(Hz_chan, 1, 1024, fs_rf);       % Canal
-H_total_f =  H_ch_f ; %H_bp_f.*;  % Respuesta en frecuencia total del sistema
 
-% Gráfica
+% Gráfica 
 figure;
 plot(f_H/1e3, 20*log10(abs(H_ch_f)));
 title('Respuesta en frecuencia del canal');
 xlabel('Frecuencia [kHz]');
 ylabel('Magnitud [dB]');
 
-H_inv_f = 1 ./ H_total_f; 				% Respuesta en frecuencia 
-H_inv_f_conj= conj(H_inv_f);
-H_inv_f_conj=H_inv_f_conj(:, end:-1:1); % Espejo
+    % Diseño del filtro FIR
+    % Respuesta al impulso ideal (IIR)
+    N_ideal = 200;
+    h_ideal = impz(1, Hz_chan, N_ideal);
+    n_ideal = 0: length(h_ideal)-1;
 
-H_inverso =[H_inv_f;H_inv_f_conj]; % La ifft trabaja sobre secuencias 
-                                   % periódicas reales si H_inverso no es 
-                                   % simetrico conjugado respecto de 0 y
-                                   % Nyquist, su ifft da una señal compleja
-                                   % en el tiempo, que no representa una
-                                   % respuesta física real, por ello se
-                                   % construye H_inverso concatenando el
-                                   % vector inverso y su conjugado en
-                                   % espejo.
+    % Método por muestreo de frecuencia
+    M1 = 25; % 
+    [H_inv_f, w_inv] =freqz(1, Hz_chan, M1);%, fs_rf);
+    recorte=H_inv_f(2:end);
+    H_inv_f_conj= conj(recorte);
+    H_inv_f_conj_espejo=H_inv_f_conj( end:-1:1,:); % Espejo
 
-h_inverso = ifft(H_inverso); % Respuesta al impulso de H_inverso
+    H_muestreo =[H_inv_f;0.5263;H_inv_f_conj_espejo]; % La ifft trabaja sobre
+                                   % secuencias periódicas reales si 
+                                   % H_inverso no es simetrico conjugado 
+                                   % respecto de 0 y Nyquist, su ifft da 
+                                   % una señal compleja en el tiempo, que 
+                                   % no representa una respuesta física 
+                                   % real, por ello se construye H_inverso 
+                                   % concatenando el vector inverso y su 
+                                   % conjugado en espejo.
 
-n_inverso = 0: length(h_inverso)-1;
+    h_muestreo = ifft(H_muestreo);
+    n_muestreo = 0: length(h_muestreo)-1;
+    ordenFIR1 = length(h_muestreo)-1;
 
-figure;
-stem(n_inverso, h_inverso);
-title('Respuesta al impulso h_{inverso}[n]');
-xlabel('Muestra');
-ylabel('Amplitud');
+    
+    M2 = 50; % doble de la frecuencia anterior
+    [H_inv_f2, w_inv2] =freqz(1, Hz_chan, M2);%, fs_rf);
+    recorte2=H_inv_f2(2:end);
+    H_inv_f_conj2= conj(recorte2);
+    H_inv_f_conj_espejo2=H_inv_f_conj2( end:-1:1,:); % Espejo
 
-% Diseño del ecualizador FIR 
-M = 128;        % Número de coeficientes FIR, se elige este valor porque: 
-                % es una potencia de 2 y proporciona una buena resolución
-                % frecuencial delta_f = fs_rf/M = 1.2 kHz , sufiente para        
-                %  modelar la banda de 38.4 a 40.65  
-                
-h_inverso = h_inverso(1:M);  % Se trunca para luego poder multiplicarce con 
-                             % la ventana que contendrá M elementos. 
+    H_muestreo2 =[H_inv_f2;0.5263;H_inv_f_conj_espejo2]; 
+    h_muestreo2 = ifft(H_muestreo2);
+    n_muestreo2 = 0: length(h_muestreo2)-1;
+    ordenFIR2 = length(h_muestreo2)-1;
 
-w = rectwin(M);     	  % Elección de ventana rectangular para el diseño
- 
-h_eq = h_inverso .* w;         % Se aplica la ventana 
+    % Método por ventana
+    M3 = 49; % Orden del filtro FIR
 
-neq = 0: length(h_eq)-1;
+    h_trunc = impz(1, Hz_chan, M3+1);
 
-figure;
-stem (neq, h_eq);
-title('Respuesta al impulso h_{eq}[n]');
-xlabel('Muestra');
-ylabel('Amplitud');
+    win = rectwin(M3+1);
 
-Nfft_eq = length(s_rx) + M - 1;  % Cuando se realiza la multiplicación en 
-                                 % frecuencia con la fft y luego se aplica
-                                 % la ifft, lo que se obtiene es la
-                                 % convolución circular, donde la respuesta
-                                 % al impulso se superpone con el inicio de
-                                 % la secuencia y genera distorsión, para
-                                 % evitarla hay que rellenar con ceros a
-                                 % ambas secuencias a un tamaño de por lo
-                                 % menos la suma de las longitudes de cada
-                                 % una menos 1. 
+    h_window = h_trunc .* win;
+    n_window = 0: length(h_window)-1;
 
-H_eq_f = fft(h_eq, Nfft_eq);     % Al aplicarce la fft con un Nfft > tamano
-                                 % de h_eq se rellena con ceros.
 
-% Gráfica de respuesta en frecuencia
-f_eq =(0: length(H_eq_f)-1)*(fs_rf/Nfft_eq)/1e3;
-H_eq_f_dB = 20*log10(abs(H_eq_f));
+    figure;% 
+    stem(n_ideal, h_ideal, 'k--','LineWidth', 1.5); hold on;
+    stem(n_window, h_window,'b');
+    stem(n_muestreo, h_muestreo, 'r');
+    title('Comparación de respuesta al impulso');
+    xlabel('Muestra');
+    ylabel('Amplitud');
+    legend('Ideal (IIR)', 'Ventana', 'Muestreo Frec.');
 
-figure;
-plot(f_eq, H_eq_f_dB);%,  'k',  'LineWidth',1.4); hold on;
-title('Respuesta en frecuencia del ecualizador diseñado con ifft');
-xlabel('Frecuencia [kHz]');
-ylabel('Magnitud [dB]');
-xlim([0 85]);
 
-S_rx_f = fft(s_rx, Nfft_eq);  
 
-S_eq_f = S_rx_f .* H_eq_f;      % Como S_rx_f y H_eq_f provienen de señales
+    M4 = 99; % Orden del filtro FIR
+
+    h_trunc2 = impz(1, Hz_chan, M4+1);
+
+    win2 = rectwin(M4+1);
+
+    h_window2 = h_trunc2 .* win2;
+
+
+    % Respuesta original vs Aproximaciones
+    [H_orig, w] = freqz(1,Hz_chan, 512);
+    H_win = freqz(h_window, 1, 512);
+    H_win2 = freqz(h_window2, 1, 512);
+    H_muesfrec = freqz(h_muestreo, 1, 512);
+    H_muesfrec2 = freqz(h_muestreo2, 1, 512);
+
+    figure; 
+    plot(w/pi, abs(H_orig), 'k--', 'LineWidth', 2); hold on;
+    plot(w/pi, abs(H_win), 'r','LineWidth',1);
+    plot(w/pi, abs(H_win2), 'm','LineWidth',1);
+    plot(w/pi, abs(H_muesfrec), 'b','LineWidth',1);
+    plot(w/pi, abs(H_muesfrec2), 'g','LineWidth',1);
+    title('Comparación de Filtro IIR Original vs. Aproximaciones FIR');
+    xlabel('Frecuencia Normalizada (\times\pi rad/muestra)');
+    ylabel('Magnitud |H(\omega)|');
+    legend('Ideal (IIR)', 'Ventana (rectangular)M=49','Ventana (rectangular)M=99', 'Muestreo Frec. 25 muestras', 'Muestreo Frec. 50 muestras');
+    grid on;
+
+
+
+    figure('Name', 'Comparación Completa: Magnitud y Fase');
+    subplot(2,1,1); 
+    plot(w/pi, 20*log10(abs(H_orig)), 'k--', 'LineWidth', 2); hold on;
+    plot(w/pi, 20*log10(abs(H_win)), 'r', 'LineWidth', 1.2);
+    plot(w/pi, 20*log10(abs(H_win2)), 'm','LineWidth',1);
+    plot(w/pi, 20*log10(abs(H_muesfrec)), 'b', 'LineWidth', 1);
+    plot(w/pi, 20*log10(abs(H_muesfrec2)), 'g','LineWidth',1);
+    grid on;
+    title('Respuesta en Magnitud');
+    ylabel('Magnitud (dB)');
+    legend('Ideal (IIR)', 'Ventana orden 49','Ventana orden 99', 'Muestreo Frec. 25 muestras', 'Muestreo Frec. 50 muestras');
+
+
+    subplot(2,1,2); % 
+    % angle() da radianes, multiplicamos por 180/pi para grados
+    plot(w/pi, unwrap(angle(H_orig))*180/pi, 'k--', 'LineWidth', 2); hold on;
+    plot(w/pi, unwrap(angle(H_win))*180/pi, 'r', 'LineWidth', 1.5);
+    plot(w/pi, unwrap(angle(H_muesfrec))*180/pi, 'b', 'LineWidth', 1);
+    grid on;
+    title('Respuesta de Fase');
+    ylabel('Fase (grados)');
+    xlabel('Frecuencia Normalizada (\times\pi rad/muestra)');
+
+    % Aplicación del Filtro 
+        %Eleccion del metodo
+%         h_eq = h_muestreo; %Eleccion del metodo
+%         h_eq = h_muestreo2;
+%          h_eq = h_window;
+        h_eq = h_window2;
+        
+        figure('Name', 'Diagrama de Polos y Ceros - Ventana Rectangular');
+        zplane(h_eq, 1);
+        grid on;
+        title('Polos y Ceros: Método de Ventana Rectangular');
+        xlabel('Parte Real');
+        ylabel('Parte Imaginaria');
+        
+      Nfft_eq = length(s_rx) + length(h_eq) - 1;  % Cuando se realiza la 
+                                     % multiplicación en frecuencia con 
+                                     % la fft y luego se aplica la ifft, 
+                                     % lo que se obtiene es la convolución 
+                                     % circular, donde la respuesta al 
+                                     % impulso se superpone con el inicio 
+                                     % de la secuencia y genera distorsión, 
+                                     % para evitarla hay que rellenar 
+                                     % con ceros a ambas secuencias a un
+                                     % tamaño de por lo menos la suma de 
+                                     % las longitudes de cada
+                                     % una menos 1. 
+
+    H_eq_f = fft(h_eq, Nfft_eq);     % Al aplicar la fft con un 
+                                     % Nfft > tamano de h_eq se rellena 
+                                     % con ceros.
+
+    % Gráfica de respuesta en frecuencia
+    f_eq =(0: length(H_eq_f)-1)*(fs_rf/Nfft_eq)/1e3;
+    H_eq_f_dB = 20*log10(abs(H_eq_f));
+
+    figure;% 
+    plot(f_eq, H_eq_f_dB);%
+    title('Respuesta en frecuencia del ecualizador');
+    xlabel('Frecuencia [kHz]');
+    ylabel('Magnitud [dB]');
+    xlim([0 100]);
+
+    S_rx_f = fft(s_rx, Nfft_eq);  
+
+    S_eq_f = S_rx_f .* H_eq_f;  % Como S_rx_f y H_eq_f provienen de señales
                                 % reales (o casi reales) su producto
                                 % mantiene la simetría conjugada
 
-s_eq = ifft(S_eq_f); % La señal a la salida del ecualizador es real
+    s_eq = ifft(S_eq_f); % La señal a la salida del ecualizador es real
 
 
-% FFTs para comparación
-Nfft_eval = length(s_rx);
-Sfilt_fft  = fft(s_filt, Nfft_eval) / Nfft_eval; % señal ideal           
-Srx_fft = fft(s_rx, Nfft_eval) / Nfft_eval;      % señal recibida
-Seq_fft = fft(s_eq, Nfft_eval) / Nfft_eval;      % señal ecualizada
-f_eval  = (0:Nfft_eval-1)*(fs_rf/Nfft_eval)/1e3; % vector frecuencia [kHz]
+    % FFTs para comparación
+    Nfft_eval = length(s_rx);
+    Sfilt_fft  = fft(s_filt, Nfft_eval) / Nfft_eval; % señal ideal           
+    Srx_fft = fft(s_rx, Nfft_eval) / Nfft_eval;      % señal recibida
+    Seq_fft = fft(s_eq, Nfft_eval) / Nfft_eval;      % señal ecualizada
+    f_eval  = (0:Nfft_eval-1)*(fs_rf/Nfft_eval)/1e3; % vector frecuencia [kHz]
 
-% Magnitudes en dB
-Sfilt_dB  = 20*log10(abs(Sfilt_fft)  + eps);
-Srx_dB = 20*log10(abs(Srx_fft) + eps);
-Seq_dB = 20*log10(abs(Seq_fft) + eps);
+    % Magnitudes en dB
+    Sfilt_dB  = 20*log10(abs(Sfilt_fft)  + eps);
+    Srx_dB = 20*log10(abs(Srx_fft) + eps);
+    Seq_dB = 20*log10(abs(Seq_fft) + eps);
 
-% Gráfica comparativa
-figure;
-plot(f_eval, Sfilt_dB,  'k',  'LineWidth',1.4); hold on;
-plot(f_eval, Srx_dB, 'r--','LineWidth',1.2);
-plot(f_eval, Seq_dB, 'b',  'LineWidth',1.2);
-xlabel('Frecuencia [kHz]');
-ylabel('Magnitud [dB]');
-title('Comparación de espectros: Original, Recibida y Ecualizada');
-legend('Original s_{filt} (ideal)', 'Recibida s_{rx}', 'Ecualizada s_{eq}');
-xlim([37 42]); grid on;
+    % Gráfica comparativa
+    figure;% 
+    plot(f_eval, Sfilt_dB,  'k',  'LineWidth',1.4); hold on;
+    plot(f_eval, Srx_dB, 'r--','LineWidth',1.2);
+    plot(f_eval, Seq_dB, 'b',  'LineWidth',1.2);
+    xlabel('Frecuencia [kHz]');
+    ylabel('Magnitud [dB]');
+    title('Comparación de espectros: Original, Recibida y Ecualizada');
+    legend('Original s_{filt} (ideal)', 'Recibida s_{rx}', 'Ecualizada s_{eq}');
+    xlim([37 42]); grid on;
+
+
+
